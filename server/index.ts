@@ -53,9 +53,10 @@ app.use((req, res, next) => {
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
+  } else {
+    // Only serve static files in production
+    serveStatic(app);
   }
-  // Always serve static files for the client
-  serveStatic(app);
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 3001 for backend (frontend uses 5000).
