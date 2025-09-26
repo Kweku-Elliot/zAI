@@ -86,8 +86,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(null);
   };
 
+  const signInWithGoogle = async () => {
+    setAuthLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/home`
+        }
+      });
+      if (error) throw error;
+      return { data };
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const signInWithGitHub = async () => {
+    setAuthLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/home`
+        }
+      });
+      if (error) throw error;
+      return { data };
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, authLoading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, authLoading, signIn, signUp, signOut, signInWithGoogle, signInWithGitHub }}>
       {children}
     </AuthContext.Provider>
   );
