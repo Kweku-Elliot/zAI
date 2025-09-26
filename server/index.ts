@@ -58,10 +58,10 @@ app.use((req, res, next) => {
   serveStatic(app);
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
+  // Other ports are firewalled. Default to 3001 for backend (frontend uses 5000).
   // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '3000', 10);
+  // Frontend will be served on port 5000 by Vite in dev mode.
+  const port = parseInt(process.env.PORT || '3001', 10);
   // `reusePort` is not supported on all platforms (notably Windows).
   // Only set it when running on platforms that support it.
   const listenOptions: any = {
