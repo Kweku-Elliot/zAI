@@ -53,24 +53,24 @@ export default function PlanComparisonPage() {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col mobile-safe-container text-foreground">
       {/* Header */}
-      <div className="bg-white pt-12 pb-4 px-4">
+      <div className="bg-card pt-12 pb-4 px-4">
         <div className="flex items-center mb-4">
           <button className="mr-4" type="button">
             <ChevronLeft size={24} color="#1F2937" />
           </button>
-          <span className="text-xl font-bold text-gray-900">Plan Comparison</span>
+          <span className="text-xl font-bold text-card-foreground">Plan Comparison</span>
         </div>
         {/* Billing Cycle Toggle */}
         <div className="flex justify-center mb-4">
-          <div className="flex bg-gray-100 rounded-full p-1">
+          <div className="flex bg-muted rounded-full p-1">
             <button
-              className={`px-4 py-2 rounded-full ${billingCycle === 'monthly' ? 'bg-white shadow-sm' : ''}`}
+              className={`px-4 py-2 rounded-full ${billingCycle === 'monthly' ? 'bg-card shadow-sm' : ''}`}
               type="button"
               onClick={() => setBillingCycle('monthly')}
             >
-              <span className={`font-medium ${billingCycle === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>Monthly</span>
+              <span className={`font-medium ${billingCycle === 'monthly' ? 'text-card-foreground' : 'text-muted-foreground'}`}>Monthly</span>
             </button>
             <button
               className={`px-4 py-2 rounded-full ${billingCycle === 'yearly' ? 'bg-white shadow-sm' : ''}`}

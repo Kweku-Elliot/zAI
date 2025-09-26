@@ -52,25 +52,25 @@ export default function SettingsPage() {
     return <UsageAnalyticsSettingsPage onBack={handleBack} />;
   }
   return (
-  <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 pt-[calc(3rem+env(safe-area-inset-top))] dark:text-white">
+  <div className="flex flex-col min-h-screen bg-background pt-[calc(3rem+env(safe-area-inset-top))] text-foreground mobile-safe-container">
       <TopBar title="Settings" onBack={() => window.history.back()} />
 
       <div className="flex-1 px-4 py-4 max-w-2xl w-full mx-auto">
         {/* Quick Actions */}
         <div className="mb-6">
-          <div className="text-gray-500 text-sm font-semibold mb-3">QUICK ACTIONS</div>
+          <div className="text-muted-foreground text-sm font-semibold mb-3">QUICK ACTIONS</div>
           <div className="flex flex-row gap-3">
             {quickActions.map((action) => {
               const IconComponent = action.icon;
               return (
                 <button
                   key={action.id}
-                  className="flex-1 bg-white rounded-xl p-4 flex flex-col items-center justify-center border border-gray-200"
+                  className="flex-1 bg-card rounded-xl p-4 flex flex-col items-center justify-center border border-border"
                 >
                   <div className={`w-12 h-12 rounded-full ${action.color} flex items-center justify-center mb-2`}>
                     <IconComponent size={24} stroke={action.iconColor} />
                   </div>
-                  <div className="text-gray-800 font-medium">{action.title}</div>
+                  <div className="text-card-foreground font-medium">{action.title}</div>
                 </button>
               );
             })}
@@ -79,14 +79,14 @@ export default function SettingsPage() {
 
         {/* Settings Categories */}
         <div className="mb-4">
-          <div className="text-gray-500 text-sm font-semibold mb-3">SETTINGS</div>
+          <div className="text-muted-foreground text-sm font-semibold mb-3">SETTINGS</div>
           <div className="flex flex-row flex-wrap gap-3">
             {settingCategories.map((category) => {
               const IconComponent = category.icon;
               return (
                 <button
                   key={category.id}
-                  className="w-[48%] bg-white rounded-xl p-4 border border-gray-200 mb-2"
+                  className="w-[48%] bg-card rounded-xl p-4 border border-border mb-2"
                   onClick={() => {
                     if (category.id === 'appearance') setCurrent('appearance');
                     if (category.id === 'profile') setCurrent('profile');
@@ -101,7 +101,7 @@ export default function SettingsPage() {
                     <div className={`w-10 h-10 rounded-full ${category.color} flex items-center justify-center mr-3`}>
                       <IconComponent size={20} stroke={category.iconColor} />
                     </div>
-                    <div className="text-gray-800 font-medium flex-1">{category.title}</div>
+                    <div className="text-card-foreground font-medium flex-1">{category.title}</div>
                     <ChevronRight size={20} stroke="#9CA3AF" />
                   </div>
                 </button>
@@ -111,13 +111,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Plan Info */}
-        <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <div className="bg-card rounded-xl p-4 border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-gray-800 font-semibold">Current Plan</div>
-              <div className="text-gray-500 text-sm">Free Plan</div>
+              <div className="text-card-foreground font-semibold">Current Plan</div>
+              <div className="text-muted-foreground text-sm">Free Plan</div>
             </div>
-            <button className="bg-blue-600 rounded-full px-4 py-2 text-white font-medium">Upgrade</button>
+            <button className="bg-primary rounded-full px-4 py-2 text-primary-foreground font-medium">Upgrade</button>
           </div>
         </div>
       </div>

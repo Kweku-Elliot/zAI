@@ -37,25 +37,25 @@ export default function AboutSupportSettingsPage({ onBack }: { onBack?: () => vo
   };
 
   return (
-  <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] dark:text-white">
+  <div className="flex flex-col min-h-screen bg-background overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] text-foreground mobile-safe-container">
       <TopBar title="About & Support" onBack={onBack} />
       <div className="flex-1 px-4 py-4 max-w-2xl w-full mx-auto">
         {/* App Information */}
-  <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm flex flex-col items-center">
-          <div className="w-16 h-16 bg-blue-500 dark:bg-blue-700 rounded-full flex items-center justify-center mb-3">
-            <span className="text-white text-2xl font-bold">Z</span>
+  <div className="bg-card rounded-xl p-4 mb-6 shadow-sm flex flex-col items-center">
+          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-3">
+            <span className="text-primary-foreground text-2xl font-bold">Z</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{appInfo.name}</div>
-          <div className="text-gray-500 dark:text-gray-400 mt-1">Version {appInfo.version} (Build {appInfo.build})</div>
-          <div className="text-gray-400 dark:text-gray-500 text-sm mt-2">Advanced AI Chat Platform</div>
+          <div className="text-2xl font-bold text-card-foreground">{appInfo.name}</div>
+          <div className="text-muted-foreground mt-1">Version {appInfo.version} (Build {appInfo.build})</div>
+          <div className="text-muted-foreground text-sm mt-2">Advanced AI Chat Platform</div>
         </div>
 
         {/* Features */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm">
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Key Features</div>
+        <div className="bg-card rounded-xl p-4 mb-6 shadow-sm">
+          <div className="text-lg font-semibold text-card-foreground mb-4">Key Features</div>
           <div className="flex flex-row flex-wrap gap-2">
             {features.map((feature, index) => (
-              <span key={index} className="bg-blue-50 dark:bg-blue-900 px-3 py-2 rounded-full text-blue-700 dark:text-blue-200 text-sm">{feature}</span>
+              <span key={index} className="bg-primary/10 px-3 py-2 rounded-full text-primary text-sm">{feature}</span>
             ))}
           </div>
         </div>

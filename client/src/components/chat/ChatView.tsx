@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export function ChatView() {
   const { currentChatId, user, isOnline } = useApp();
-  const { sendMessage, processFile, transcribeAudio } = useAI();
+  const { sendMessage, processFile, transcribeAudio, isProcessing } = useAI();
   const { getMessages, saveMessage, saveChat } = useOfflineStorage();
   const { toast } = useToast();
   
@@ -91,32 +91,56 @@ export function ChatView() {
     // Send to AI if online
     if (isOnline) {
       try {
-        const response = await sendMessage.mutateAsync({
-          message: content,
-          chatId: currentChatId,
-        });
-
-        // Create AI response message
+        // Create initial AI message placeholder
+        const aiMessageId = crypto.randomUUID();
         const aiMessage: ChatMessage = {
-          id: crypto.randomUUID(),
+          id: aiMessageId,
           chatId: currentChatId,
           role: 'assistant',
-          content: response.content,
+          content: '',
           messageType: 'text',
           encrypted: false,
           aiValidated: true,
           createdAt: new Date().toISOString(),
         };
 
+        // Add AI message placeholder to UI
         setMessages(prev => [...prev, aiMessage]);
-        await saveMessage(aiMessage);
 
-        // Update chat timestamp
-        await saveChat({
-          id: currentChatId,
-          title: messages.length === 0 ? content.slice(0, 50) + '...' : `Chat ${currentChatId.slice(0, 8)}`,
-          lastMessageAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
+        await sendMessage(content, currentChatId, {
+          onStreamUpdate: (streamContent: string) => {
+            // Update the AI message as content streams in
+            setMessages(prev => prev.map(msg => 
+              msg.id === aiMessageId 
+                ? { ...msg, content: streamContent }
+                : msg
+            ));
+          },
+          onStreamEnd: async () => {
+            // Finalize the message and save it
+            const finalMessages = messages.filter(m => m.id === aiMessageId);
+            if (finalMessages.length > 0) {
+              await saveMessage(finalMessages[0]);
+            }
+
+            // Update chat timestamp
+            await saveChat({
+              id: currentChatId,
+              title: messages.length === 0 ? content.slice(0, 50) + '...' : `Chat ${currentChatId.slice(0, 8)}`,
+              lastMessageAt: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+            });
+          },
+          onError: (error: Error) => {
+            console.error('Failed to send message:', error);
+            // Remove the failed AI message
+            setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
+            toast({
+              title: "Failed to send message",
+              description: error.message || 'Please try again.',
+              variant: "destructive",
+            });
+          }
         });
 
       } catch (error) {
@@ -314,7 +338,7 @@ export function ChatView() {
         onSendMessage={handleSendMessage}
         onSendFile={handleSendFile}
         onStartVoiceRecording={() => setIsVoiceModalOpen(true)}
-        disabled={sendMessage.isPending || processFile.isPending}
+        disabled={isProcessing || processFile.isPending}
       />
 
       {/* Voice Recording Modal */}

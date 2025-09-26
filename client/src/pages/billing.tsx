@@ -230,22 +230,22 @@ export default function BillingPage() {
   <TopBar title="Billing" onBack={() => window.history.back()} />
       <div className="flex-1 px-4 py-6 overflow-y-auto">
         {/* Billing Cycle Toggle */}
-        <div className="bg-white rounded-2xl p-4 mb-6">
+        <div className="bg-card rounded-2xl p-4 mb-6">
           <div className="flex justify-between items-center">
-            <span className="font-medium text-gray-900">Billing Cycle</span>
+            <span className="font-medium text-card-foreground">Billing Cycle</span>
             <div className="flex items-center">
-              <span className={`mr-3 ${billingCycle === 'monthly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Monthly</span>
+              <span className={`mr-3 ${billingCycle === 'monthly' ? 'text-card-foreground font-medium' : 'text-muted-foreground'}`}>Monthly</span>
 
               <button
                 role="switch"
                 aria-checked={billingCycle === 'yearly'}
                 onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 ${billingCycle === 'yearly' ? 'bg-blue-600' : 'bg-gray-300'}`}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${billingCycle === 'yearly' ? 'bg-primary' : 'bg-muted'}`}
               >
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${billingCycle === 'yearly' ? 'translate-x-5' : 'translate-x-1'}`} />
               </button>
 
-              <span className={`ml-3 ${billingCycle === 'yearly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Yearly</span>
+              <span className={`ml-3 ${billingCycle === 'yearly' ? 'text-card-foreground font-medium' : 'text-muted-foreground'}`}>Yearly</span>
               <span className="ml-4 bg-green-100 px-2 py-1 rounded-full">
                 <span className="text-green-700 text-xs font-medium">Save 10%</span>
               </span>
@@ -253,13 +253,13 @@ export default function BillingPage() {
           </div>
         </div>
         {/* Usage Stats */}
-        <span className="text-lg font-bold text-gray-900 mb-4 block">Usage</span>
+        <span className="text-lg font-bold text-foreground mb-4 block">Usage</span>
         {renderUsageCard('Messages', usageData.messages.used, usageData.messages.limit, 'msgs')}
         {renderUsageCard('File Uploads', usageData.files.used, usageData.files.limit, 'files')}
         {renderUsageCard('Voice Minutes', usageData.voice.used, usageData.voice.limit, 'min')}
         {renderUsageCard('API Calls', usageData.api.used, usageData.api.limit, 'calls')}
         {/* Plans */}
-        <span className="text-lg font-bold text-gray-900 mt-6 mb-4 block">Plans</span>
+        <span className="text-lg font-bold text-foreground mt-6 mb-4 block">Plans</span>
         {plans.map(renderPlanCard)}
         {/* Payment Methods */}
         <div className="bg-white rounded-2xl p-4 mb-6">

@@ -65,24 +65,24 @@ const CodeExecutionScreen = () => {
   };
 
   return (
-  <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+  <div className="flex flex-col min-h-screen bg-background text-foreground mobile-safe-container">
       <TopBar title="Code Executor" />
   <div className="flex-1 p-4 max-w-2xl mx-auto w-full pt-24">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Code Executor</h1>
-          <p className="text-gray-500 mt-1">Run code in multiple languages</p>
+          <h1 className="text-3xl font-bold text-foreground">Code Executor</h1>
+          <p className="text-muted-foreground mt-1">Run code in multiple languages</p>
         </div>
 
         {/* Language Selector */}
         <div className="mb-4">
-          <label className="text-gray-700 font-medium mb-2 block">Language</label>
+          <label className="text-foreground font-medium mb-2 block">Language</label>
           <button
             type="button"
-            className="flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 w-full"
+            className="flex items-center justify-between bg-muted rounded-xl p-4 border border-border w-full">
             onClick={() => setIsLanguageSelectorOpen(!isLanguageSelectorOpen)}
           >
-            <span className="text-gray-800 font-medium">
+            <span className="text-foreground font-medium">
               {languages.find(lang => lang.id === selectedLanguage)?.name}
             </span>
             <ChevronDown
@@ -93,19 +93,19 @@ const CodeExecutionScreen = () => {
           </button>
 
           {isLanguageSelectorOpen && (
-            <div className="mt-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="mt-2 bg-card rounded-lg border border-border shadow-sm">
               {languages.map((language) => (
                 <button
                   key={language.id}
                   type="button"
-                  className="flex items-center p-3 border-b border-gray-100 last:border-b-0 w-full"
+                  className="flex items-center p-3 border-b border-border last:border-b-0 w-full">
                   onClick={() => {
                     setSelectedLanguage(language.id);
                     setIsLanguageSelectorOpen(false);
                   }}
                 >
                   <span className={`w-3 h-3 rounded-full ${language.color} mr-3 inline-block`}></span>
-                  <span className="text-gray-800">{language.name}</span>
+                  <span className="text-card-foreground">{language.name}</span>
                 </button>
               ))}
             </div>

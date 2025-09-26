@@ -3,27 +3,27 @@ import { CheckCircle, Home, Receipt } from 'lucide-react';
 
 export default function PaymentConfirmedPage() {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-12 mobile-safe-container">
       {/* Confirmation Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 flex flex-col items-center shadow-lg w-full max-w-md">
+      <div className="bg-card rounded-2xl p-8 flex flex-col items-center shadow-lg w-full max-w-md">
         {/* Success Icon */}
         <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6">
           <CheckCircle color="#2ECC71" size={48} />
         </div>
         {/* Success Title */}
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Payment Successful!</h2>
-        <p className="text-gray-600 text-center mb-8">
+        <h2 className="text-2xl font-bold text-card-foreground mb-2">Payment Successful!</h2>
+        <p className="text-muted-foreground text-center mb-8">
           Your transaction has been processed successfully
         </p>
         {/* Order Details */}
-        <div className="w-full bg-gray-50 rounded-xl p-4 mb-6">
+        <div className="w-full bg-muted rounded-xl p-4 mb-6">
           <div className="flex justify-between py-2">
-            <span className="text-gray-600 dark:text-gray-400">Order ID</span>
-            <span className="text-gray-900 font-semibold">#ORD-789456</span>
+            <span className="text-muted-foreground">Order ID</span>
+            <span className="text-foreground font-semibold">#ORD-789456</span>
           </div>
           <div className="flex justify-between py-2">
             <span className="text-gray-600 dark:text-gray-400">Item</span>
-            <span className="text-gray-900">Data Bundle - 5GB</span>
+            <span className="text-foreground">Data Bundle - 5GB</span>
           </div>
           <div className="flex justify-between py-2">
             <span className="text-gray-600 dark:text-gray-400">Amount</span>
@@ -40,13 +40,13 @@ export default function PaymentConfirmedPage() {
         </div>
         {/* Action Buttons */}
         <div className="flex w-full gap-3">
-          <button className="flex-1 flex flex-row items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-xl p-4" type="button">
+          <button className="flex-1 flex flex-row items-center justify-center bg-muted rounded-xl p-4" type="button">
             <Receipt color="#4A90E2" size={20} />
-            <span className="text-blue-600 dark:text-blue-300 font-bold ml-2">View Receipt</span>
+            <span className="text-primary font-bold ml-2">View Receipt</span>
           </button>
-          <button className="flex-1 flex flex-row items-center justify-center bg-blue-600 rounded-xl p-4" type="button">
+          <button className="flex-1 flex flex-row items-center justify-center bg-primary rounded-xl p-4" type="button">
             <Home color="white" size={20} />
-            <span className="text-white font-bold ml-2">Home</span>
+            <span className="text-primary-foreground font-bold ml-2">Home</span>
           </button>
         </div>
       </div>

@@ -16,21 +16,21 @@ export default function PrivacySecuritySettingsPage({ onBack }: { onBack?: () =>
   };
 
   return (
-  <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] dark:text-white">
+  <div className="flex flex-col min-h-screen bg-background overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] text-foreground mobile-safe-container">
       <TopBar title="Privacy & Security" onBack={onBack} />
       <div className="flex-1 px-4 py-4 max-w-2xl w-full mx-auto">
         {/* Data Collection Consent */}
-  <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm">
+  <div className="bg-card rounded-xl p-4 mb-6 shadow-sm">
           <div className="flex flex-row items-center justify-between">
             <div className="flex flex-row items-center">
-              <Shield size={24} className="text-blue-500 mr-3" />
+              <Shield size={24} className="text-primary mr-3" />
               <div>
-                <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">Data Collection</div>
-                <div className="text-gray-500 dark:text-gray-400 text-sm">Control how we collect and use your data</div>
+                <div className="text-lg font-semibold text-card-foreground">Data Collection</div>
+                <div className="text-muted-foreground text-sm">Control how we collect and use your data</div>
               </div>
             </div>
             <button
-              className={`w-12 h-6 rounded-full ${dataCollection ? 'bg-blue-500' : 'bg-gray-300'} flex items-center px-1 transition-all duration-300`}
+              className={`w-12 h-6 rounded-full ${dataCollection ? 'bg-primary' : 'bg-muted'} flex items-center px-1 transition-all duration-300`}
               onClick={() => setDataCollection(!dataCollection)}
             >
               <span className={`w-5 h-5 bg-white rounded-full block transition-transform duration-300 ${dataCollection ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -46,17 +46,17 @@ export default function PrivacySecuritySettingsPage({ onBack }: { onBack?: () =>
         </div>
 
         {/* Data Management */}
-  <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm">
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Data Management</div>
+  <div className="bg-card rounded-xl p-4 mb-6 shadow-sm">
+          <div className="text-lg font-semibold text-card-foreground mb-4">Data Management</div>
           <button
-            className="flex flex-row items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 w-full"
+            className="flex flex-row items-center justify-between py-3 border-b border-border w-full"
             onClick={handleExportData}
           >
             <span className="flex flex-row items-center">
-              <Download size={20} className="text-blue-500 mr-3" />
-              <span className="text-base text-gray-900 dark:text-gray-100">Export My Data</span>
+              <Download size={20} className="text-primary mr-3" />
+              <span className="text-base text-card-foreground">Export My Data</span>
             </span>
-            <ChevronRight size={20} className="text-gray-400 dark:text-gray-500" />
+            <ChevronRight size={20} className="text-muted-foreground" />
           </button>
           <button
             className="flex flex-row items-center justify-between py-3 w-full"

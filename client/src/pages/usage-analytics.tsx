@@ -22,24 +22,24 @@ const getProgressColor = (percentage: number) => {
 
 export default function UsageAnalyticsSettingsPage({ onBack }: { onBack?: () => void }) {
   return (
-  <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] dark:text-white">
+  <div className="flex flex-col min-h-screen bg-background overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] text-foreground mobile-safe-container">
       <TopBar title="Usage & Analytics" onBack={onBack} />
       <div className="flex-1 px-4 py-4 max-w-2xl w-full mx-auto">
         {/* Plan Information */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm">
+        <div className="bg-card rounded-xl p-4 mb-6 shadow-sm">
           <div className="flex flex-row items-center justify-between mb-4">
-            <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">Current Plan</span>
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-300">{planLimits.name}</span>
+            <span className="text-lg font-semibold text-card-foreground">Current Plan</span>
+            <span className="text-lg font-bold text-primary">{planLimits.name}</span>
           </div>
-          <button className="flex flex-row items-center justify-between bg-blue-50 dark:bg-blue-900 rounded-lg p-3 w-full">
-            <span className="font-medium text-blue-700 dark:text-blue-300">Upgrade Plan</span>
-            <ChevronRight size={20} className="text-blue-500 dark:text-blue-300" />
+          <button className="flex flex-row items-center justify-between bg-primary/10 rounded-lg p-3 w-full">
+            <span className="font-medium text-primary">Upgrade Plan</span>
+            <ChevronRight size={20} className="text-primary" />
           </button>
         </div>
 
         {/* Usage Stats */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm">
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Usage Statistics</div>
+        <div className="bg-card rounded-xl p-4 mb-6 shadow-sm">
+          <div className="text-lg font-semibold text-card-foreground mb-4">Usage Statistics</div>
           {/* Messages */}
           <div className="mb-5">
             <div className="flex flex-row items-center justify-between mb-2">

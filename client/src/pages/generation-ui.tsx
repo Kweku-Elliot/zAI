@@ -280,9 +280,9 @@ const ScaffoldGenerator: React.FC = () => {
           style={{ marginBottom: 'var(--preview-bottom-gap, 24px)' }}>
                 {/* Phone screen area - fixed height but capped to viewport minus header/nav so it never overlaps nav */}
        <div className="bg-white overflow-hidden flex flex-col mt-4 mb-20"
-         style={{ height: 'var(--preview-height)', maxHeight: 'calc(100vh - 80px)' }}>
+         style={{ height: 'var(--preview-height)', maxHeight: 'calc(100vh - 120px)', minHeight: '500px' }}>
                   {/* Scrollable phone screen content area with fixed height */}
-                  <div className="flex-1 h-full overflow-y-auto">
+                  <div className="flex-1 h-full overflow-y-auto scroll-smooth">
                     {isPreviewMode ? renderDashboardPreview() : renderCodePreview()}
                   </div>
                 </div>

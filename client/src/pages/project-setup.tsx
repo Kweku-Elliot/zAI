@@ -33,23 +33,23 @@ export default function ProjectSetupScreen() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-background mobile-safe-container text-foreground">
       <TopBar title="New Project" />
       <div className="max-w-xl mx-auto p-6 w-full">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">New Project</h1>
-          <p className="text-gray-600">Set up your project preferences to get started</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">New Project</h1>
+          <p className="text-muted-foreground">Set up your project preferences to get started</p>
         </div>
 
         {/* Project Name */}
         <div className="mb-8">
           <div className="flex items-center mb-3">
             <Layers size={20} color="#3B82F6" className="mr-2" />
-            <span className="text-lg font-semibold text-gray-800">Project Name</span>
+            <span className="text-lg font-semibold text-foreground">Project Name</span>
           </div>
           <input
-            className="bg-white border border-gray-300 rounded-xl p-4 text-base w-full"
+            className="bg-background border border-border rounded-xl p-4 text-base w-full"
             placeholder="Enter your project name"
             value={projectName}
             onChange={e => setProjectName(e.target.value)}
@@ -60,7 +60,7 @@ export default function ProjectSetupScreen() {
         <div className="mb-8">
           <div className="flex items-center mb-3">
             <Code size={20} color="#3B82F6" className="mr-2" />
-            <span className="text-lg font-semibold text-gray-800">Language</span>
+            <span className="text-lg font-semibold text-foreground">Language</span>
           </div>
           <div className="flex flex-wrap gap-3">
             {languages.map((language) => (
@@ -68,8 +68,8 @@ export default function ProjectSetupScreen() {
                 key={language.id}
                 className={`px-4 py-3 rounded-xl border transition-colors ${
                   selectedLanguage === language.id
-                    ? 'bg-blue-100 border-blue-500'
-                    : 'bg-white border-gray-300'
+                    ? 'bg-primary/10 border-primary'
+                    : 'bg-card border-border'
                 }`}
                 onClick={() => setSelectedLanguage(language.id)}
               >

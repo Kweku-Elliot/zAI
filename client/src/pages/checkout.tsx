@@ -25,27 +25,27 @@ export default function CheckoutPage() {
   };
 
   return (
-  <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col pb-[env(safe-area-inset-bottom)] dark:text-white">
+  <div className="min-h-screen bg-background flex flex-col pb-[env(safe-area-inset-bottom)] text-foreground mobile-safe-container">
       {/* Header */}
-      <div className="pt-12 pb-6 px-6 bg-white">
+      <div className="pt-12 pb-6 px-6 bg-card">
         <div className="flex items-center mb-2">
           <button className="mr-3" type="button">
             <ArrowLeft color="#2C3E50" size={24} />
           </button>
-          <span className="text-gray-900 dark:text-gray-100 text-2xl font-bold">Checkout</span>
+          <span className="text-card-foreground text-2xl font-bold">Checkout</span>
         </div>
-        <span className="text-gray-600 dark:text-gray-400">Review your order and payment details</span>
+        <span className="text-muted-foreground">Review your order and payment details</span>
       </div>
       <div className="flex-1 px-4 pt-4 overflow-y-auto">
         {/* Order Summary */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow mb-6">
-          <span className="text-gray-900 dark:text-gray-100 text-lg font-bold mb-4 block">Order Summary</span>
-          <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900 rounded-xl mb-4">
+        <div className="bg-card rounded-2xl p-4 shadow mb-6">
+          <span className="text-card-foreground text-lg font-bold mb-4 block">Order Summary</span>
+          <div className="flex items-center justify-between p-4 bg-primary/10 rounded-xl mb-4">
             <div>
-              <span className="text-gray-900 dark:text-gray-100 font-bold block">{orderDetails.item}</span>
-              <span className="text-gray-600 dark:text-gray-400 text-sm mt-1 block">{orderDetails.description}</span>
+              <span className="text-card-foreground font-bold block">{orderDetails.item}</span>
+              <span className="text-muted-foreground text-sm mt-1 block">{orderDetails.description}</span>
             </div>
-            <span className="text-gray-900 dark:text-gray-100 font-bold">{orderDetails.price}</span>
+            <span className="text-card-foreground font-bold">{orderDetails.price}</span>
           </div>
           <div className="flex justify-between py-2">
             <span className="text-gray-600 dark:text-gray-400">Subtotal</span>

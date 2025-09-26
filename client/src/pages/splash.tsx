@@ -34,9 +34,9 @@ export default function SplashScreen() {
   }, [setLocation]);
 
   return (
-    <div className="min-h-screen bg-[#F4F7FA] flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center mobile-safe-container">
       <div
-        className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#4A90E2] to-[#6A5ACD]"
+        className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-primary/80"
         style={{ minHeight: '100vh' }}
       >
         <div ref={fadeRef} className="flex flex-col items-center justify-center" style={{ transition: 'opacity 1s' }}>

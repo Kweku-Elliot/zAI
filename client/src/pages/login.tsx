@@ -75,17 +75,17 @@ export default function LoginPage() {
                         <div className="w-full max-w-md px-6 py-12 bg-card rounded-xl shadow">
                                 {/* Header */}
                                 <div className="mb-12 text-center">
-                                        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Welcome Back</h1>
-                                        <p className="text-gray-600 dark:text-gray-400">Sign in to continue your journey</p>
+                                        <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
+                                        <p className="text-muted-foreground">Sign in to continue your journey</p>
                                 </div>
                                 {/* Login Form */}
-                                <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg mb-8">
+                                <div className="bg-card rounded-2xl p-6 shadow-lg mb-8">
                                         {/* Email Field */}
                                         <div className="mb-5">
-                                                <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 bg-white">
+                                                <div className="flex items-center border border-border rounded-xl px-4 py-3 bg-background">
                                                         <Mail size={20} color="#6B7280" />
                                                         <input
-                                                                className="flex-1 ml-3 text-gray-800 outline-none bg-transparent"
+                                                                className="flex-1 ml-3 text-foreground outline-none bg-transparent"
                                                                 type="email"
                                                                 placeholder="Email address"
                                                                 value={email}
@@ -99,10 +99,10 @@ export default function LoginPage() {
                                         </div>
                                         {/* Password Field */}
                                         <div className="mb-6">
-                                                <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 bg-white">
+                                                <div className="flex items-center border border-border rounded-xl px-4 py-3 bg-background">
                                                         <Lock size={20} color="#6B7280" />
                                                         <input
-                                                                className="flex-1 ml-3 text-gray-800 outline-none bg-transparent"
+                                                                className="flex-1 ml-3 text-foreground outline-none bg-transparent"
                                                                 type={showPassword ? 'text' : 'password'}
                                                                 placeholder="Password"
                                                                 value={password}
@@ -122,11 +122,11 @@ export default function LoginPage() {
                                         </div>
                                         {/* Forgot Password */}
                                         <div className="mb-6 text-right">
-                                                <button type="button" className="text-blue-600 font-medium">Forgot Password?</button>
+                                                <button type="button" className="text-primary font-medium">Forgot Password?</button>
                                         </div>
                                         {/* Login Button */}
                                         <button
-                                                className="w-full bg-blue-600 rounded-xl py-4 text-white font-bold text-lg mb-6"
+                                                className="w-full bg-primary rounded-xl py-4 text-primary-foreground font-bold text-lg mb-6"
                                                 onClick={handleLogin}
                                                 disabled={authLoading}
                                                 type="button"
@@ -136,28 +136,28 @@ export default function LoginPage() {
                                         {formError && <div className="text-red-500 text-sm mt-1">{formError}</div>}
                                         {/* Divider */}
                                         <div className="flex items-center mb-6">
-                                                <div className="flex-1 h-px bg-gray-300" />
-                                                <span className="text-gray-500 mx-4">OR</span>
-                                                <div className="flex-1 h-px bg-gray-300" />
+                                                <div className="flex-1 h-px bg-border" />
+                                                <span className="text-muted-foreground mx-4">OR</span>
+                                                <div className="flex-1 h-px bg-border" />
                                         </div>
                                         {/* Social Login Buttons */}
                                         <div className="flex justify-between mb-8">
                                                 <button
-                                                        className="flex-1 mx-1 bg-white border border-gray-300 rounded-xl py-3 flex items-center justify-center"
+                                                        className="flex-1 mx-1 bg-card border border-border rounded-xl py-3 flex items-center justify-center"
                                                         type="button"
                                                         onClick={() => handleSocialLogin('Facebook')}
                                                 >
                                                         <Facebook size={24} color="#3B82F6" />
                                                 </button>
                                                 <button
-                                                        className="flex-1 mx-1 bg-white border border-gray-300 rounded-xl py-3 flex items-center justify-center"
+                                                        className="flex-1 mx-1 bg-card border border-border rounded-xl py-3 flex items-center justify-center"
                                                         type="button"
                                                         onClick={() => handleSocialLogin('Twitter')}
                                                 >
                                                         <Twitter size={24} color="#3B82F6" />
                                                 </button>
                                                 <button
-                                                        className="flex-1 mx-1 bg-white border border-gray-300 rounded-xl py-3 flex items-center justify-center"
+                                                        className="flex-1 mx-1 bg-card border border-border rounded-xl py-3 flex items-center justify-center"
                                                         type="button"
                                                         onClick={() => handleSocialLogin('GitHub')}
                                                 >
@@ -167,8 +167,8 @@ export default function LoginPage() {
                                 </div>
                                 {/* Sign Up Link */}
                                 <div className="flex justify-center">
-                                        <span className="text-gray-600">Don't have an account? </span>
-                                        <button type="button" className="text-blue-600 font-bold ml-1" onClick={() => setLocation('/signup')}>Sign Up</button>
+                                        <span className="text-muted-foreground">Don't have an account? </span>
+                                        <button type="button" className="text-primary font-bold ml-1" onClick={() => setLocation('/signup')}>Sign Up</button>
                                 </div>
                         </div>
                         {/* Safe area bottom padding */}

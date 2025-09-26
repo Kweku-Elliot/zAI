@@ -53,17 +53,17 @@ export default function ContactsPage() {
   };
 
   const renderContact = (contact: Contact) => (
-  <div key={contact.id} className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-xl mb-3 shadow-sm border border-gray-100 dark:border-gray-700">
+  <div key={contact.id} className="flex items-center p-4 bg-card rounded-xl mb-3 shadow-sm border border-border">
       <img src={contact.avatar} alt={contact.name} className="w-14 h-14 rounded-full mr-4 object-cover" />
       <div className="flex-1">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{contact.name}</h3>
+          <h3 className="text-lg font-bold text-card-foreground">{contact.name}</h3>
         </div>
-  <div className="flex items-center mt-1 text-sm text-gray-600 dark:text-gray-300">
+  <div className="flex items-center mt-1 text-sm text-muted-foreground">
           <Phone size={14} color="#3498DB" className="mr-2" />
           <span>{contact.phone}</span>
         </div>
-  <div className="flex items-center mt-1 text-sm text-gray-600 dark:text-gray-300">
+  <div className="flex items-center mt-1 text-sm text-muted-foreground">
           <Mail size={14} color="#3498DB" className="mr-2" />
           <span>{contact.email}</span>
         </div>
@@ -72,16 +72,16 @@ export default function ContactsPage() {
   );
 
   return (
-  <div className="flex-1 bg-gray-50 dark:bg-gray-900 min-h-screen dark:text-white">
-  <div className="bg-white dark:bg-gray-800 pt-12 pb-6 px-4 shadow-sm">
+  <div className="flex-1 bg-background min-h-screen text-foreground mobile-safe-container">
+  <div className="bg-card pt-12 pb-6 px-4 shadow-sm">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Contacts</h2>
+          <h2 className="text-2xl font-bold text-card-foreground">Contacts</h2>
           <button
-            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800 rounded-full p-3"
+            className="bg-primary hover:bg-primary/90 rounded-full p-3"
             onClick={() => importContactsFromDevice()}
             aria-label="Import contacts"
           >
-            <UserPlus size={20} color="white" />
+            <UserPlus size={20} className="text-primary-foreground" />
           </button>
         </div>
 
