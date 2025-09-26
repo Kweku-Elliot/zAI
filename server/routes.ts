@@ -363,6 +363,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
   //   }
   // });
 
+  // Paystack payment routes
+  app.post("/api/paystack/initialize", async (req, res) => {
+    try {
+      const { email, amount } = req.body;
+      
+      if (!email || !amount) {
+        return res.status(400).json({ message: "Email and amount are required" });
+      }
+
+      // In a real implementation, you would use the Paystack SDK
+      // For now, we'll simulate the response
+      const reference = `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const response = {
+        status: true,
+        message: "Authorization URL created",
+        data: {
+          authorization_url: `https://checkout.paystack.com/${reference}`,
+          access_code: `${reference}_access`,
+          reference: reference
+        }
+      };
+
+      res.json(response);
+    } catch (error: any) {
+      console.error("Paystack initialization error:", error);
+      res.status(500).json({ message: "Payment initialization failed" });
+    }
+  });
+
+  app.post("/api/paystack/verify", async (req, res) => {
+    try {
+      const { reference } = req.body;
+      
+      if (!reference) {
+        return res.status(400).json({ message: "Reference is required" });
+      }
+
+      // In a real implementation, you would verify with Paystack API
+      // For now, we'll simulate a successful verification
+      const response = {
+        status: true,
+        message: "Verification successful",
+        data: {
+          id: Date.now(),
+          domain: "test",
+          status: "success",
+          reference: reference,
+          amount: 50000, // Amount in kobo
+          gateway_response: "Successful",
+          paid_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          channel: "card",
+          currency: "GHS",
+          customer: {
+            id: Date.now(),
+            email: "user@example.com"
+          }
+        }
+      };
+
+      res.json(response);
+    } catch (error: any) {
+      console.error("Paystack verification error:", error);
+      res.status(500).json({ message: "Payment verification failed" });
+    }
+  });
+
   // Create HTTP server
   const httpServer = createServer(app);
 

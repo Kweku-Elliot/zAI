@@ -1,8 +1,11 @@
 
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import { useLocation } from 'wouter';
 import { Wallet, CreditCard, Send, QrCode, BarChart3, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import TopBar from '@/components/TopBar';
+import QRCodeComponent from '../components/QRCode';
+import QRScannerComponent from '../components/QRScanner';
+import { AuthContext } from '../contexts/AuthContext';
 
 const transactions = [
   { id: 1, title: 'AI Subscription', amount: -19.99, date: '2023-05-15', type: 'expense' },
@@ -21,112 +24,164 @@ export default function WalletPage() {
     image: 300,
   };
   const [, setLocation] = useLocation();
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [scanResult, setScanResult] = useState('');
+  const { user } = useContext(AuthContext);
+
+  const handleQRScan = (result: string) => {
+    setScanResult(result);
+    console.log('QR Scan result:', result);
+    // Here you would handle the scanned QR code - could be a wallet address, payment request, etc.
+    alert(`QR Code scanned: ${result}`);
+  };
+
+  const handleSendCredits = () => {
+    setLocation('/send-receive');
+  };
+
+  const handleReceiveCredits = () => {
+    setLocation('/send-receive');
+  };
+
+  const handleTopUp = () => {
+    setLocation('/billing');
+  };
+
+  // Generate a wallet address for QR code
+  const walletAddress = user?.id ? `zenux_wallet_${user.id}` : 'zenux_wallet_demo';
 
   return (
-  <div className="min-h-screen bg-gray-100 dark:bg-gray-900 pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] dark:text-white">
+  <div className="min-h-screen bg-background pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] text-foreground mobile-safe-container">
   {/* Header */}
   <TopBar title="My Wallet" onBack={() => window.history.back()} />
-      <div className="pt-12 pb-6 px-6 bg-white">
+      <div className="pt-12 pb-6 px-6 bg-card">
         {/* Credits Card */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+        <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-gray-800 text-lg font-semibold">Credits</h3>
-              <p className="text-sm text-gray-500">Your available allocation across credit types</p>
+              <h3 className="text-card-foreground text-lg font-semibold">Credits</h3>
+              <p className="text-sm text-muted-foreground">Your available allocation across credit types</p>
             </div>
             <div className="flex items-center space-x-2">
-              <button className="text-sm text-blue-600 hover:underline" onClick={() => alert('Manage credits coming soon')}>Manage</button>
+              <button className="text-sm text-primary hover:underline" onClick={handleTopUp}>Manage</button>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center p-3 bg-muted rounded-lg">
               <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                 <Wallet color="#0EA5A4" size={20} />
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-900">{credits.ai}</div>
-                <div className="text-xs text-gray-500">AI Credits</div>
+                <div className="text-lg font-bold text-card-foreground">{credits.ai}</div>
+                <div className="text-xs text-muted-foreground">AI Credits</div>
               </div>
             </div>
 
-            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center p-3 bg-muted rounded-lg">
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-3">
                 <CreditCard color="#7C3AED" size={20} />
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-900">{credits.voice}</div>
-                <div className="text-xs text-gray-500">Voice Tokens</div>
+                <div className="text-lg font-bold text-card-foreground">{credits.voice}</div>
+                <div className="text-xs text-muted-foreground">Voice Tokens</div>
               </div>
             </div>
 
-            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center p-3 bg-muted rounded-lg">
               <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
                 <Send color="#4338CA" size={20} />
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-900">{credits.project}</div>
-                <div className="text-xs text-gray-500">Project Credits</div>
+                <div className="text-lg font-bold text-card-foreground">{credits.project}</div>
+                <div className="text-xs text-muted-foreground">Project Credits</div>
               </div>
             </div>
 
-            <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center p-3 bg-muted rounded-lg">
               <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
                 <QrCode color="#CA8A04" size={20} />
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-900">{credits.image}</div>
-                <div className="text-xs text-gray-500">Image/Gen Credits</div>
+                <div className="text-lg font-bold text-card-foreground">{credits.image}</div>
+                <div className="text-xs text-muted-foreground">Image/Gen Credits</div>
               </div>
             </div>
           </div>
         </div>
       </div>
       {/* Quick Actions */}
-      <div className="flex justify-around py-6 px-4 bg-white">
+      <div className="flex justify-around py-6 px-4 bg-card">
         <div className="flex flex-col items-center">
           <button
-            className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-2 shadow"
-            onClick={() => setLocation('/send-receive')}
+            className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-2 shadow hover:bg-muted/80"
+            onClick={handleSendCredits}
             type="button"
-            aria-label="Send Money"
+            aria-label="Send Credits"
           >
-            <Send color="gray" size={24} />
+            <Send className="text-muted-foreground" size={24} />
           </button>
-          <span className="text-gray-700 dark:text-gray-300">Send</span>
+          <span className="text-muted-foreground">Send</span>
         </div>
         <div className="flex flex-col items-center">
           <button
-            className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-2 shadow"
-            onClick={() => setLocation('/send-receive')}
+            className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-2 shadow hover:bg-muted/80"
+            onClick={handleReceiveCredits}
             type="button"
-            aria-label="Request Money"
+            aria-label="Request Credits"
           >
-            <ArrowDownLeft color="gray" size={24} />
+            <ArrowDownLeft className="text-muted-foreground" size={24} />
           </button>
-          <span className="text-gray-700 dark:text-gray-300">Request</span>
+          <span className="text-muted-foreground">Request</span>
         </div>
         <div className="flex flex-col items-center">
           <button
-            className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-2 shadow"
-            onClick={() => alert('Scan functionality coming soon.')}
+            className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-2 shadow hover:bg-muted/80"
+            onClick={() => setShowQRScanner(true)}
             type="button"
-            aria-label="Scan"
+            aria-label="Scan QR Code"
           >
-            <QrCode color="gray" size={24} />
+            <QrCode className="text-muted-foreground" size={24} />
           </button>
-          <span className="text-gray-700 dark:text-gray-300">Scan</span>
+          <span className="text-muted-foreground">Scan</span>
         </div>
         <div className="flex flex-col items-center">
           <button
-            className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-2 shadow"
-            onClick={() => setLocation('/top-up')}
+            className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-2 shadow hover:bg-muted/80"
+            onClick={handleTopUp}
             type="button"
             aria-label="Top Up"
           >
-            <CreditCard color="gray" size={24} />
+            <CreditCard className="text-muted-foreground" size={24} />
           </button>
-          <span className="text-gray-700 dark:text-gray-300">Top Up</span>
+          <span className="text-muted-foreground">Top Up</span>
+        </div>
+      </div>
+
+      {/* QR Code Section */}
+      <div className="px-4 mb-4">
+        <div className="bg-card rounded-2xl p-6 shadow border border-border">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-card-foreground text-lg font-semibold">Your Wallet QR</h3>
+            <button 
+              className="text-sm text-primary hover:underline"
+              onClick={() => navigator.clipboard.writeText(walletAddress)}
+              type="button"
+            >
+              Copy Address
+            </button>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="bg-white p-4 rounded-xl mb-4">
+              <QRCodeComponent value={walletAddress} size={200} />
+            </div>
+            <p className="text-sm text-muted-foreground text-center">
+              Scan this QR code to receive credits
+            </p>
+            <p className="text-xs text-muted-foreground text-center mt-2 break-all">
+              {walletAddress}
+            </p>
+          </div>
         </div>
       </div>
       {/* Recent Transactions */}
@@ -188,6 +243,13 @@ export default function WalletPage() {
           </div>
         </div>
       </div>
+
+      {/* QR Scanner Component */}
+      <QRScannerComponent 
+        isOpen={showQRScanner}
+        onScan={handleQRScan}
+        onClose={() => setShowQRScanner(false)}
+      />
     </div>
   );
 }

@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { CreditCard, Calendar, Download, Crown, Check, X, ChevronRight, Lock, Info } from 'lucide-react';
 import TopBar from '@/components/TopBar';
+import { processUpgrade } from '../lib/paystack';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'plus' | 'pro' | 'proplus'>('plus');
-  const [_showPaymentFlow, _setShowPaymentFlow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { user } = useContext(AuthContext);
 
   const usageData = {
     messages: { used: 850, limit: 1000 },
@@ -138,16 +141,34 @@ export default function BillingPage() {
     );
   }
 
+  const handleUpgrade = async (plan: typeof plans[0]) => {
+    if (!user || !user.email || plan.id === 'free') return;
+    
+    setLoading(true);
+    try {
+      const amount = parseInt(plan.price.replace('₵', ''));
+      const result = await processUpgrade(plan.id, user.email, amount);
+      
+      if (result.success) {
+        console.log('Payment initiated successfully');
+        // You could show a success message or redirect
+      } else {
+        console.error('Payment failed:', result.error);
+        alert('Payment initialization failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      alert('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   function renderPlanCard(plan: typeof plans[0]) {
-    const textClass = plan.color === 'gray' ? 'text-gray-900' : 'text-white';
+    const textClass = plan.color === 'gray' ? 'text-card-foreground' : 'text-white';
 
     return (
-      <button
-        key={plan.id}
-        className={`rounded-2xl overflow-hidden mb-6 w-full text-left ${plan.current ? 'border-2 border-blue-500' : ''}`}
-        type="button"
-        onClick={() => setSelectedPlan(plan.id as any)}
-      >
+      <div key={plan.id} className={`rounded-2xl overflow-hidden mb-6 w-full ${plan.current ? 'border-2 border-primary' : ''}`}>
         <div
           className="p-6"
           style={{
@@ -188,12 +209,24 @@ export default function BillingPage() {
             </div>
           )}
         </div>
-      </button>
+        {!plan.current && plan.id !== 'free' && (
+          <div className="px-6 pb-6">
+            <button
+              className="w-full bg-white/20 hover:bg-white/30 text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50"
+              onClick={() => handleUpgrade(plan)}
+              disabled={loading}
+              type="button"
+            >
+              {loading ? 'Processing...' : `Upgrade to ${plan.name}`}
+            </button>
+          </div>
+        )}
+      </div>
     );
   }
 
   return (
-  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] dark:text-white">
+  <div className="min-h-screen bg-background flex flex-col pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] text-foreground mobile-safe-container">
   <TopBar title="Billing" onBack={() => window.history.back()} />
       <div className="flex-1 px-4 py-6 overflow-y-auto">
         {/* Billing Cycle Toggle */}
