@@ -145,7 +145,7 @@ export default function ImageVideoGenPage() {
   };
 
   return (
-  <div className="min-h-screen bg-background flex flex-col pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] text-foreground mobile-safe-container">
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] dark:text-white">
       {/* Top Bar */}
       <TopBar title="AI Generation" />
       <div className="px-4">

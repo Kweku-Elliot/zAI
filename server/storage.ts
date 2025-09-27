@@ -10,7 +10,9 @@ import {
   type GroupWallet,
   type InsertGroupWallet,
   type GiftCredit,
-  type InsertGiftCredit
+  type InsertGiftCredit,
+  type UsageAnalytics,
+  type InsertUsageAnalytics
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -54,6 +56,11 @@ export interface IStorage {
   getGiftCreditsByUserId(userId: string): Promise<GiftCredit[]>;
   createGiftCredit(giftCredit: InsertGiftCredit): Promise<GiftCredit>;
   updateGiftCredit(id: string, updates: Partial<GiftCredit>): Promise<GiftCredit>;
+  
+  // Usage analytics methods
+  getUsageAnalytics(id: string): Promise<UsageAnalytics | undefined>;
+  getUsageAnalyticsByUserId(userId: string): Promise<UsageAnalytics[]>;
+  createUsageAnalytics(analytics: InsertUsageAnalytics): Promise<UsageAnalytics>;
 }
 
 export class MemStorage implements IStorage {
@@ -63,6 +70,7 @@ export class MemStorage implements IStorage {
   private transactions: Map<string, Transaction> = new Map();
   private groupWallets: Map<string, GroupWallet> = new Map();
   private giftCredits: Map<string, GiftCredit> = new Map();
+  private usageAnalytics: Map<string, UsageAnalytics> = new Map();
 
   constructor() {
     // Initialize with some mock data
@@ -350,6 +358,29 @@ export class MemStorage implements IStorage {
     const updatedGiftCredit = { ...giftCredit, ...updates };
     this.giftCredits.set(id, updatedGiftCredit);
     return updatedGiftCredit;
+  }
+
+  // Usage Analytics methods
+  async getUsageAnalytics(id: string): Promise<UsageAnalytics | undefined> {
+    return this.usageAnalytics.get(id);
+  }
+
+  async getUsageAnalyticsByUserId(userId: string): Promise<UsageAnalytics[]> {
+    return Array.from(this.usageAnalytics.values())
+      .filter(analytics => analytics.userId === userId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async createUsageAnalytics(insertUsageAnalytics: InsertUsageAnalytics): Promise<UsageAnalytics> {
+    const id = randomUUID();
+    const usageAnalytics: UsageAnalytics = {
+      ...insertUsageAnalytics,
+      id,
+      createdAt: new Date(),
+    };
+    
+    this.usageAnalytics.set(id, usageAnalytics);
+    return usageAnalytics;
   }
 }
 

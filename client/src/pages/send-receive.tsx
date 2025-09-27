@@ -91,9 +91,9 @@ export default function SendReceivePage() {
   const [recipient, setRecipient] = useState('');
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-[env(safe-area-inset-bottom)] mobile-safe-container">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pb-[env(safe-area-inset-bottom)]">
       {/* Header */}
-      <div className="bg-card p-4 shadow-sm">
+      <div className="bg-white p-4 shadow-sm">
   <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">Send &amp; Receive</h2>
       </div>
       {/* Tab Selector */}

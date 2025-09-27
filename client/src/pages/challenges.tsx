@@ -69,11 +69,11 @@ const ChallengesScreen: React.FC = () => {
   };
 
   return (
-  <div className="min-h-screen bg-background flex flex-col pb-[env(safe-area-inset-bottom)] mobile-safe-container text-foreground">
+  <div className="min-h-screen bg-white flex flex-col pb-[env(safe-area-inset-bottom)]">
       {/* Header */}
-      <div className="bg-card p-6 border-b border-border">
-        <h1 className="text-3xl font-bold text-card-foreground">Code Challenges</h1>
-        <p className="text-muted-foreground mt-2">Select coding challenges to enhance your skills</p>
+      <div className="bg-white p-6 border-b border-gray-100">
+        <h1 className="text-3xl font-bold text-gray-900">Code Challenges</h1>
+        <p className="text-gray-600 mt-2">Select coding challenges to enhance your skills</p>
       </div>
 
       {/* Challenge List */}

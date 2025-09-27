@@ -25,30 +25,30 @@ export default function ReceiptPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col text-foreground mobile-safe-container">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col dark:text-white">
       {/* Header */}
-      <div className="pt-12 pb-6 px-6 bg-card">
+      <div className="pt-12 pb-6 px-6 bg-white">
         <div className="flex items-center mb-2">
           <button className="mr-3" type="button">
             <ArrowLeft color="#2C3E50" size={24} />
           </button>
-          <span className="text-card-foreground text-2xl font-bold">Payment Receipt</span>
+          <span className="text-gray-900 dark:text-gray-100 text-2xl font-bold">Payment Receipt</span>
         </div>
-        <span className="text-muted-foreground">Detailed transaction information</span>
+        <span className="text-gray-600 dark:text-gray-400">Detailed transaction information</span>
       </div>
       <div className="flex-1 px-4 pt-4 overflow-y-auto">
   {/* Receipt Card */}
-  <div className="bg-card rounded-2xl p-6 shadow mb-6">
+  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow mb-6">
           {/* Status Badge */}
           <div className="flex justify-center mb-6">
-            <div className="bg-green-100 px-4 py-2 rounded-full">
-              <span className="text-green-700 font-bold text-center">Payment Successful</span>
+            <div className="bg-green-100 dark:bg-green-900 px-4 py-2 rounded-full">
+              <span className="text-green-700 dark:text-green-300 font-bold text-center">Payment Successful</span>
             </div>
           </div>
           {/* Receipt Header */}
           <div className="flex flex-col items-center mb-6">
-            <span className="text-3xl font-bold text-card-foreground">{receiptDetails.amount}</span>
-            <span className="text-muted-foreground mt-1">{receiptDetails.item}</span>
+            <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">{receiptDetails.amount}</span>
+            <span className="text-gray-600 dark:text-gray-400 mt-1">{receiptDetails.item}</span>
           </div>
           {/* Receipt Details */}
           <div className="border-t border-b border-gray-200 py-4 my-4">

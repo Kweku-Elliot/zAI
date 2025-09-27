@@ -305,12 +305,12 @@ export default function ChatPage() {
                         className={`flex my-2 mx-4 ${msg.isAI ? 'justify-start' : 'justify-end'}`}
                 >
                         <div
-                                className={`max-w-[85%] rounded-2xl p-4 ${msg.isAI ? 'bg-muted dark:bg-muted rounded-tl-none' : 'bg-primary rounded-br-none'}`}
+                                className={`max-w-[85%] rounded-2xl p-4 ${msg.isAI ? 'bg-gray-100 rounded-tl-none' : 'bg-blue-600 rounded-br-none'}`}
                         >
                                 {msg.isAI ? (
                                         <ReactMarkdown>{msg.text}</ReactMarkdown>
                                 ) : (
-                                        <span className={`text-sm ${msg.isAI ? 'text-muted-foreground' : 'text-primary-foreground'}`}>{msg.text}</span>
+                                        <span className={`text-sm ${msg.isAI ? 'text-gray-800' : 'text-white'}`}>{msg.text}</span>
                                 )}
                         </div>
                 </div>
@@ -346,30 +346,30 @@ export default function ChatPage() {
                                                 </div>
 
                                                 {/* Stacked Horizontal Icons */}
-                                                <div className="grid grid-cols-4 gap-y-2 gap-x-2 p-3 border-b border-border">
-                                                        <button onClick={() => navigateTo('/image-video-gen')} className="items-center p-2 flex flex-col hover:bg-muted rounded-lg">
+                                                <div className="grid grid-cols-4 gap-y-2 gap-x-2 p-3 border-b border-gray-200 dark:border-gray-700">
+                                                        <button onClick={() => navigateTo('/image-video-gen')} className="items-center p-2 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
                                                                 <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-1">
                                                                         <Sparkles size={20} color="#3B82F6" />
                                                                 </div>
-                                                                <span className="text-muted-foreground text-xs">Generate</span>
+                                                                <span className="text-gray-600 dark:text-gray-300 text-xs">Generate</span>
                                                         </button>
-                                                        <button onClick={() => navigateTo('/credit')} className="items-center p-2 flex flex-col hover:bg-muted rounded-lg">
+                                                        <button onClick={() => navigateTo('/credit')} className="items-center p-2 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
                                                                 <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-1">
                                                                         <Wallet size={20} color="#10B981" />
                                                                 </div>
-                                                                <span className="text-muted-foreground text-xs">Credit</span>
+                                                                <span className="text-gray-600 dark:text-gray-300 text-xs">Credit</span>
                                                         </button>
-                                                                                <button onClick={() => navigateTo('/code-execution')} className="items-center p-2 flex flex-col hover:bg-muted rounded-lg">
+                                                                                <button onClick={() => navigateTo('/code-execution')} className="items-center p-2 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
                                                                                         <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center mb-1">
                                                                                                 <Code size={20} color="#EF4444" />
                                                                                         </div>
-                                                                                        <span className="text-muted-foreground text-xs">Codez</span>
+                                                                                        <span className="text-gray-600 dark:text-gray-300 text-xs">Codez</span>
                                                                                 </button>
-                                                                                <button onClick={() => navigateTo('/project-setup')} className="items-center p-2 flex flex-col hover:bg-muted rounded-lg">
+                                                                                <button onClick={() => navigateTo('/project-setup')} className="items-center p-2 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
                                                                                         <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mb-1">
                                                                                                 <Layers size={20} color="#6366F1" />
                                                                                         </div>
-                                                                                        <span className="text-muted-foreground text-xs">Projects</span>
+                                                                                        <span className="text-gray-600 dark:text-gray-300 text-xs">Projects</span>
                                                                                 </button>
                                                         <button onClick={() => navigateTo('/settings')} className="items-center p-2 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
                                                                 <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mb-1">

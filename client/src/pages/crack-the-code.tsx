@@ -92,36 +92,36 @@ const CodeChallengesScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col pb-[env(safe-area-inset-bottom)] text-foreground mobile-safe-container">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col pb-[env(safe-area-inset-bottom)]">
       <TopBar title="Crack the Code" />
       {/* Stats Summary */}
   <div className="flex flex-row justify-between items-center px-4 py-6 pt-24">
         <div className="flex items-center gap-2">
           <Flame color="orange" size={20} />
           <span className="font-bold text-lg">{stats.streak}</span>
-          <span className="text-muted-foreground text-xs">Day Streak</span>
+          <span className="text-gray-500 text-xs">Day Streak</span>
         </div>
         <div className="flex items-center gap-2">
           <Coins color="gold" size={20} />
           <span className="font-bold text-lg">{stats.credits}</span>
-          <span className="text-muted-foreground text-xs">AI Credits</span>
+          <span className="text-gray-500 text-xs">AI Credits</span>
         </div>
         <div className="flex items-center gap-2">
           <TrendingUp color="#6366f1" size={20} />
           <span className="font-bold text-lg">{stats.totalPoints}</span>
-          <span className="text-muted-foreground text-xs">Total Points</span>
+          <span className="text-gray-500 text-xs">Total Points</span>
         </div>
       </div>
 
       {/* Tabs */}
-  <div className="flex flex-row bg-card border-b border-border">
+  <div className="flex flex-row bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         {['challenges', 'history', 'leaderboard'].map((tab) => (
           <button
             key={tab}
             className={`flex-1 py-4 text-center ${activeTab === tab ? 'border-b-2 border-indigo-600' : ''}`}
             onClick={() => setActiveTab(tab as typeof activeTab)}
           >
-            <span className={`${activeTab === tab ? 'text-primary font-bold' : 'text-muted-foreground'} capitalize`}
+            <span className={`${activeTab === tab ? 'text-indigo-600 font-bold' : 'text-gray-500'} capitalize`}>
               {tab}
             </span>
           </button>
@@ -136,12 +136,12 @@ const CodeChallengesScreen: React.FC = () => {
             {challenges.map((challenge) => (
               <div
                 key={challenge.id}
-                className="bg-card rounded-xl p-4 mb-4 shadow-sm border border-border">
+                className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex justify-between">
-                      <span className="text-lg font-bold text-card-foreground">{challenge.title}</span>
+                      <span className="text-lg font-bold text-gray-900">{challenge.title}</span>
                       {challenge.completed ? (
                         <CheckCircle2 color="green" size={20} />
                       ) : null}

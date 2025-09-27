@@ -28,11 +28,11 @@ export default function NotificationSettingsPage({ onBack }: { onBack?: () => vo
   };
 
   return (
-  <div className="flex flex-col min-h-screen bg-background overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] text-foreground mobile-safe-container">
+  <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] dark:text-white">
       <TopBar title="Notifications" onBack={onBack} />
       <div className="flex-1 px-4 py-4 max-w-2xl w-full mx-auto">
         {/* Master Toggle */}
-  <div className="bg-card rounded-xl p-4 mb-6 shadow-sm">
+  <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm">
           <div className="flex flex-row items-center justify-between">
             <div className="flex flex-row items-center">
               <Bell size={24} className="text-blue-500 mr-3" />

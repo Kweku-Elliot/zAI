@@ -6,7 +6,7 @@ import { storage } from "./storage";
 // import { stripeService } from "./services/stripe";
 // import { encryptionService } from "./services/encryption";
 import { zenuxAIV2Service } from "./services/zenux"; // Import ZenuxAIV2Service
-import { insertMessageSchema, insertChatSchema, insertTransactionSchema, insertUserSchema } from "@shared/schema";
+import { insertMessageSchema, insertChatSchema, insertTransactionSchema, insertUserSchema, insertUsageAnalyticsSchema } from "@shared/schema";
 import multer from "multer";
 
 // Configure multer for file uploads
@@ -279,6 +279,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   */
+
+  // Usage Analytics routes
+  app.post("/api/usage-analytics", async (req, res) => {
+    try {
+      const analyticsData = insertUsageAnalyticsSchema.parse(req.body);
+      const analytics = await storage.createUsageAnalytics(analyticsData);
+      res.json({ analytics });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/usage-analytics/:userId", async (req, res) => {
+    try {
+      const analytics = await storage.getUsageAnalyticsByUserId(req.params.userId);
+      res.json({ analytics });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
 
   // Transaction routes
   app.post("/api/transactions", async (req, res) => {

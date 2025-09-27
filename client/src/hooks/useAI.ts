@@ -21,87 +21,29 @@ export function useAI() {
   const { user } = useApp();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Send message to AI with streaming support
-  const sendMessage = useCallback(async (
-    message: string, 
-    chatId: string, 
-    options?: {
-      onStreamUpdate?: (content: string) => void;
-      onStreamEnd?: () => void;
-      onError?: (error: Error) => void;
-    }
-  ) => {
-    if (!isOnline) {
-      throw new Error('AI chat requires internet connection');
-    }
+  // Send message to AI
+  const sendMessage = useMutation({
+    mutationFn: async ({ message, chatId }: { message: string; chatId: string }) => {
+      if (!isOnline) {
+        throw new Error('AI chat requires internet connection');
+      }
 
-    const payload = {
-      message,
-      conversation_id: chatId,
-      user_id: user?.id || 'anonymous',
-      enhanced: true,
-      enhanced_v2: true,
-    };
+      const payload: any = {
+        message,
+        conversation_id: chatId,
+        user_id: user?.id || 'anonymous',
+        enhanced: true,
+        enhanced_v2: true,
+      };
 
-    setIsProcessing(true);
-
-    try {
       const response = await apiRequest('POST', '/api/ai/chat', payload);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let fullContent = '';
-
-      if (!reader) {
-        throw new Error('Response body is null');
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) {
-          options?.onStreamEnd?.();
-          setIsProcessing(false);
-          break;
-        }
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6).trim();
-            if (data && data !== '[DONE]') {
-              try {
-                const parsed = JSON.parse(data);
-                if (parsed.error) {
-                  throw new Error(parsed.error);
-                }
-                fullContent += data;
-                options?.onStreamUpdate?.(fullContent);
-              } catch (e) {
-                // If it's not JSON, treat as plain text
-                fullContent += data;
-                options?.onStreamUpdate?.(fullContent);
-              }
-            }
-          }
-        }
-      }
-
+      return await response.json();
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/chats'] });
-      return { content: fullContent };
-
-    } catch (error: any) {
-      setIsProcessing(false);
-      options?.onError?.(error);
-      throw error;
-    }
-  }, [isOnline, user?.id]);
+    },
+  });
 
   // Generate image
   const generateImage = useMutation({

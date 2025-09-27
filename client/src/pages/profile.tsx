@@ -41,14 +41,14 @@ export default function ProfileSettingsPage({ onBack }: { onBack?: () => void })
   }, [profile, user]);
 
   return (
-  <div className="flex flex-col min-h-screen bg-background pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] text-foreground mobile-safe-container">
+  <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] dark:text-white">
       {/* Header */}
       <TopBar title="Profile Settings" onBack={onBack} />
 
       <div className="flex-1 px-4 py-4 max-w-2xl w-full mx-auto overflow-auto">
         {/* Profile Picture Section */}
-        <div className="bg-card rounded-xl p-4 mb-6 border border-border">
-          <div className="text-card-foreground font-semibold mb-4">Profile Picture</div>
+        <div className="bg-white dark:bg-gray-900 rounded-xl p-4 mb-6 border border-gray-200 dark:border-gray-700">
+          <div className="text-gray-800 font-semibold mb-4">Profile Picture</div>
           <div className="flex flex-col items-center">
             <div className="relative">
               <img
@@ -60,7 +60,7 @@ export default function ProfileSettingsPage({ onBack }: { onBack?: () => void })
             </div>
             <div className="flex flex-row mt-4 gap-3">
               {avatarImages.map((avatar, index) => (
-                <button key={index} className={`w-12 h-12 rounded-full overflow-hidden border-2 ${avatarUrl === avatar ? 'border-primary' : 'border-border'}`} onClick={() => setAvatarUrl(avatar)}>
+                <button key={index} className={`w-12 h-12 rounded-full overflow-hidden border-2 ${avatarUrl === avatar ? 'border-blue-500' : 'border-gray-300'}`} onClick={() => setAvatarUrl(avatar)}>
                   <img src={avatar} className="w-full h-full object-cover" alt="Avatar" />
                 </button>
               ))}
@@ -70,19 +70,19 @@ export default function ProfileSettingsPage({ onBack }: { onBack?: () => void })
         </div>
 
                 
-        <div className="bg-card rounded-xl p-4 mb-6 border border-border">
-          <div className="text-card-foreground font-semibold mb-4">Personal Information</div>
+        <div className="bg-white dark:bg-gray-900 rounded-xl p-4 mb-6 border border-gray-200 dark:border-gray-700">
+          <div className="text-gray-800 font-semibold mb-4">Personal Information</div>
           <div className="mb-4">
-            <div className="text-muted-foreground text-sm mb-1">Display Name</div>
+            <div className="text-gray-500 text-sm mb-1">Display Name</div>
             <input
-              className="bg-background rounded-lg px-4 py-3 text-foreground border border-border w-full"
+              className="bg-gray-50 dark:bg-gray-900 rounded-lg px-4 py-3 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 w-full"
               value={displayName}
               onChange={e => setDisplayName(e.target.value)}
             />
           </div>
           <div className="mb-4">
-            <div className="text-muted-foreground text-sm mb-1">Email Address</div>
-            <div className="flex flex-row items-center bg-background rounded-lg px-4 py-3 border border-border">
+            <div className="text-gray-500 text-sm mb-1">Email Address</div>
+            <div className="flex flex-row items-center bg-gray-50 dark:bg-gray-900 rounded-lg px-4 py-3 border border-gray-200 dark:border-gray-700">
               <Mail size={20} className="text-gray-400 mr-2" />
               <input
                 className="flex-1 text-gray-800 dark:text-gray-100 bg-transparent outline-none"

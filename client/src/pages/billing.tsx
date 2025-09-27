@@ -3,19 +3,34 @@ import { CreditCard, Calendar, Download, Crown, Check, X, ChevronRight, Lock, In
 import TopBar from '@/components/TopBar';
 import { processUpgrade } from '../lib/paystack';
 import { AuthContext } from '../contexts/AuthContext';
+import { useCredits } from '../contexts/CreditsContext';
 
 export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'plus' | 'pro' | 'proplus'>('plus');
   const [loading, setLoading] = useState(false);
-  const { user } = useContext(AuthContext);
+  const { user, profile } = useContext(AuthContext);
+  const { currentCredits, planLimits, plan, getUsagePercentage } = useCredits();
+
+  const selectedPlan = plan as 'free' | 'plus' | 'pro' | 'proplus';
 
   const usageData = {
-    messages: { used: 850, limit: 1000 },
-    files: { used: 12, limit: 20 },
-    voice: { used: 45, limit: 60 },
-    api: { used: 150, limit: 500 },
-    resetDate: '2023-10-15',
+    messages: { 
+      used: currentCredits.aiCredits, 
+      limit: planLimits.aiCredits === -1 ? Infinity : planLimits.aiCredits 
+    },
+    files: { 
+      used: currentCredits.fileUploads, 
+      limit: planLimits.fileUploads === -1 ? Infinity : planLimits.fileUploads 
+    },
+    voice: { 
+      used: currentCredits.voiceMinutes, 
+      limit: planLimits.voiceMinutes === -1 ? Infinity : planLimits.voiceMinutes 
+    },
+    api: { 
+      used: currentCredits.apiCalls, 
+      limit: planLimits.apiCalls === -1 ? Infinity : planLimits.apiCalls 
+    },
+    resetDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().split('T')[0],
   };
 
   const plans = [
@@ -25,8 +40,8 @@ export default function BillingPage() {
       price: billingCycle === 'monthly' ? '₵0' : '₵0',
       period: billingCycle === 'monthly' ? '/month' : '/year',
       features: [
-        '50 messages/month',
-        '2 file uploads',
+        '50 AI credits/month',
+        '2 file uploads/month',
         'Basic AI access',
         'Community support',
       ],
@@ -47,10 +62,10 @@ export default function BillingPage() {
       price: billingCycle === 'monthly' ? '₵20' : '₵216',
       period: billingCycle === 'monthly' ? '/month' : '/year',
       features: [
-        'Unlimited messages',
+        '1,000 AI credits/month',
         '10 file uploads/month',
-        'Voice chat (60 min)',
-        'Advanced AI',
+        'Voice chat (60 min/month)',
+        'Advanced AI models',
         'Email support',
       ],
       limitations: [
@@ -69,12 +84,12 @@ export default function BillingPage() {
       price: billingCycle === 'monthly' ? '₵40' : '₵432',
       period: billingCycle === 'monthly' ? '/month' : '/year',
       features: [
-        'Unlimited messages',
+        '5,000 AI credits/month',
         '50 file uploads/month',
-        'Voice chat (180 min)',
-        'Premium AI',
+        'Voice chat (180 min/month)',
+        'Premium AI models',
         'Priority support',
-        'API access',
+        'API access (500 calls/month)',
       ],
       limitations: [
         'Voice minutes tracked',
@@ -125,17 +140,27 @@ export default function BillingPage() {
   }
 
   function renderUsageCard(title: string, used: number, limit: number, unit: string) {
-    const progress = used / limit;
+    const progress = limit === Infinity ? 0 : used / limit;
     const isCritical = progress > 0.8;
+    const displayLimit = limit === Infinity ? '∞' : limit.toString();
+    
     return (
-      <div className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+      <div className="bg-white rounded-xl p-4 mb-4 shadow-sm" data-testid={`usage-card-${title.toLowerCase().replace(/\s+/g, '-')}`}>
         <div className="flex justify-between mb-2">
           <span className="text-gray-700 font-medium">{title}</span>
-          <span className={`font-medium ${isCritical ? 'text-red-500' : 'text-gray-600'}`}>{used}/{limit} {unit}</span>
+          <span className={`font-medium ${isCritical ? 'text-red-500' : 'text-gray-600'}`}>
+            {used}/{displayLimit} {unit}
+          </span>
         </div>
-        <ProgressBar progress={progress} />
+        {limit !== Infinity && <ProgressBar progress={progress} />}
         {isCritical && (
-          <button className="mt-2 text-blue-500 text-sm font-medium" type="button">Upgrade now</button>
+          <button 
+            className="mt-2 text-blue-500 text-sm font-medium" 
+            type="button"
+            data-testid="button-upgrade-now"
+          >
+            Upgrade now
+          </button>
         )}
       </div>
     );
@@ -216,6 +241,7 @@ export default function BillingPage() {
               onClick={() => handleUpgrade(plan)}
               disabled={loading}
               type="button"
+              data-testid={`button-upgrade-${plan.id}`}
             >
               {loading ? 'Processing...' : `Upgrade to ${plan.name}`}
             </button>
@@ -230,22 +256,23 @@ export default function BillingPage() {
   <TopBar title="Billing" onBack={() => window.history.back()} />
       <div className="flex-1 px-4 py-6 overflow-y-auto">
         {/* Billing Cycle Toggle */}
-        <div className="bg-card rounded-2xl p-4 mb-6">
+        <div className="bg-white rounded-2xl p-4 mb-6">
           <div className="flex justify-between items-center">
-            <span className="font-medium text-card-foreground">Billing Cycle</span>
+            <span className="font-medium text-gray-900">Billing Cycle</span>
             <div className="flex items-center">
-              <span className={`mr-3 ${billingCycle === 'monthly' ? 'text-card-foreground font-medium' : 'text-muted-foreground'}`}>Monthly</span>
+              <span className={`mr-3 ${billingCycle === 'monthly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Monthly</span>
 
               <button
                 role="switch"
                 aria-checked={billingCycle === 'yearly'}
                 onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${billingCycle === 'yearly' ? 'bg-primary' : 'bg-muted'}`}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 ${billingCycle === 'yearly' ? 'bg-blue-600' : 'bg-gray-300'}`}
+                data-testid="toggle-billing-cycle"
               >
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${billingCycle === 'yearly' ? 'translate-x-5' : 'translate-x-1'}`} />
               </button>
 
-              <span className={`ml-3 ${billingCycle === 'yearly' ? 'text-card-foreground font-medium' : 'text-muted-foreground'}`}>Yearly</span>
+              <span className={`ml-3 ${billingCycle === 'yearly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Yearly</span>
               <span className="ml-4 bg-green-100 px-2 py-1 rounded-full">
                 <span className="text-green-700 text-xs font-medium">Save 10%</span>
               </span>
@@ -253,13 +280,22 @@ export default function BillingPage() {
           </div>
         </div>
         {/* Usage Stats */}
-        <span className="text-lg font-bold text-foreground mb-4 block">Usage</span>
-        {renderUsageCard('Messages', usageData.messages.used, usageData.messages.limit, 'msgs')}
+        <span className="text-lg font-bold text-gray-900 mb-4 block">Current Usage</span>
+        {renderUsageCard('AI Credits', usageData.messages.used, usageData.messages.limit, 'credits')}
         {renderUsageCard('File Uploads', usageData.files.used, usageData.files.limit, 'files')}
         {renderUsageCard('Voice Minutes', usageData.voice.used, usageData.voice.limit, 'min')}
         {renderUsageCard('API Calls', usageData.api.used, usageData.api.limit, 'calls')}
+        
+        <div className="bg-blue-50 rounded-xl p-4 mb-6">
+          <div className="flex items-center">
+            <Info size={16} className="text-blue-600 mr-2" />
+            <span className="text-blue-800 text-sm">
+              Usage resets on {new Date(usageData.resetDate).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
         {/* Plans */}
-        <span className="text-lg font-bold text-foreground mt-6 mb-4 block">Plans</span>
+        <span className="text-lg font-bold text-gray-900 mt-6 mb-4 block">Plans</span>
         {plans.map(renderPlanCard)}
         {/* Payment Methods */}
         <div className="bg-white rounded-2xl p-4 mb-6">

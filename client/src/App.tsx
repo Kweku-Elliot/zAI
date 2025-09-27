@@ -144,6 +144,7 @@ function Router() {
 }
 
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CreditsProvider } from "@/contexts/CreditsContext";
 
 function App() {
   return (
@@ -151,10 +152,12 @@ function App() {
       <ThemeProvider>
         <AppProvider>
           <AuthProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Router />
-            </TooltipProvider>
+            <CreditsProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Router />
+              </TooltipProvider>
+            </CreditsProvider>
           </AuthProvider>
         </AppProvider>
       </ThemeProvider>

@@ -1,11 +1,12 @@
 
 import React, { useState, useContext } from 'react';
 import { useLocation } from 'wouter';
-import { Wallet, CreditCard, Send, QrCode, BarChart3, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Wallet, CreditCard, Send, QrCode, BarChart3, ArrowUpRight, ArrowDownLeft, AlertTriangle } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 import QRCodeComponent from '../components/QRCode';
 import QRScannerComponent from '../components/QRScanner';
 import { AuthContext } from '../contexts/AuthContext';
+import { useCredits } from '../contexts/CreditsContext';
 
 const transactions = [
   { id: 1, title: 'AI Subscription', amount: -19.99, date: '2023-05-15', type: 'expense' },
@@ -16,17 +17,11 @@ const transactions = [
 ];
 
 export default function WalletPage() {
-  // balance visibility removed — using credits view
-  const credits = {
-    ai: 1250,
-    voice: 250,
-    project: 12,
-    image: 300,
-  };
   const [, setLocation] = useLocation();
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [scanResult, setScanResult] = useState('');
   const { user } = useContext(AuthContext);
+  const { currentCredits, planLimits, plan, getRemainingCredits, getUsagePercentage } = useCredits();
 
   const handleQRScan = (result: string) => {
     setScanResult(result);
@@ -68,44 +63,120 @@ export default function WalletPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center p-3 bg-muted rounded-lg">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                <Wallet color="#0EA5A4" size={20} />
+            {/* AI Credits */}
+            <div className="p-3 bg-muted rounded-lg">
+              <div className="flex items-center mb-2">
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                  <Wallet color="#0EA5A4" size={20} />
+                </div>
+                <div className="flex-1">
+                  <div className="text-lg font-bold text-card-foreground">
+                    {planLimits.aiCredits === -1 ? '∞' : getRemainingCredits('aiCredits')}
+                  </div>
+                  <div className="text-xs text-muted-foreground">AI Credits</div>
+                </div>
+                {getUsagePercentage('aiCredits') > 80 && planLimits.aiCredits !== -1 && (
+                  <AlertTriangle size={16} color="#EF4444" />
+                )}
               </div>
-              <div>
-                <div className="text-lg font-bold text-card-foreground">{credits.ai}</div>
-                <div className="text-xs text-muted-foreground">AI Credits</div>
+              <div className="text-xs text-muted-foreground">
+                Used: {currentCredits.aiCredits} / {planLimits.aiCredits === -1 ? '∞' : planLimits.aiCredits}
               </div>
+              {planLimits.aiCredits !== -1 && (
+                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full ${getUsagePercentage('aiCredits') > 80 ? 'bg-red-500' : 'bg-blue-500'}`}
+                    style={{ width: `${Math.min(100, getUsagePercentage('aiCredits'))}%` }}
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center p-3 bg-muted rounded-lg">
-              <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                <CreditCard color="#7C3AED" size={20} />
+            {/* Voice Minutes */}
+            <div className="p-3 bg-muted rounded-lg">
+              <div className="flex items-center mb-2">
+                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                  <CreditCard color="#7C3AED" size={20} />
+                </div>
+                <div className="flex-1">
+                  <div className="text-lg font-bold text-card-foreground">
+                    {planLimits.voiceMinutes === -1 ? '∞' : getRemainingCredits('voiceMinutes')}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Voice Minutes</div>
+                </div>
+                {getUsagePercentage('voiceMinutes') > 80 && planLimits.voiceMinutes !== -1 && (
+                  <AlertTriangle size={16} color="#EF4444" />
+                )}
               </div>
-              <div>
-                <div className="text-lg font-bold text-card-foreground">{credits.voice}</div>
-                <div className="text-xs text-muted-foreground">Voice Tokens</div>
+              <div className="text-xs text-muted-foreground">
+                Used: {currentCredits.voiceMinutes} / {planLimits.voiceMinutes === -1 ? '∞' : planLimits.voiceMinutes}
               </div>
+              {planLimits.voiceMinutes !== -1 && planLimits.voiceMinutes > 0 && (
+                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full ${getUsagePercentage('voiceMinutes') > 80 ? 'bg-red-500' : 'bg-purple-500'}`}
+                    style={{ width: `${Math.min(100, getUsagePercentage('voiceMinutes'))}%` }}
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center p-3 bg-muted rounded-lg">
-              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                <Send color="#4338CA" size={20} />
+            {/* File Uploads */}
+            <div className="p-3 bg-muted rounded-lg">
+              <div className="flex items-center mb-2">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                  <Send color="#4338CA" size={20} />
+                </div>
+                <div className="flex-1">
+                  <div className="text-lg font-bold text-card-foreground">
+                    {planLimits.fileUploads === -1 ? '∞' : getRemainingCredits('fileUploads')}
+                  </div>
+                  <div className="text-xs text-muted-foreground">File Uploads</div>
+                </div>
+                {getUsagePercentage('fileUploads') > 80 && planLimits.fileUploads !== -1 && (
+                  <AlertTriangle size={16} color="#EF4444" />
+                )}
               </div>
-              <div>
-                <div className="text-lg font-bold text-card-foreground">{credits.project}</div>
-                <div className="text-xs text-muted-foreground">Project Credits</div>
+              <div className="text-xs text-muted-foreground">
+                Used: {currentCredits.fileUploads} / {planLimits.fileUploads === -1 ? '∞' : planLimits.fileUploads}
               </div>
+              {planLimits.fileUploads !== -1 && planLimits.fileUploads > 0 && (
+                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full ${getUsagePercentage('fileUploads') > 80 ? 'bg-red-500' : 'bg-indigo-500'}`}
+                    style={{ width: `${Math.min(100, getUsagePercentage('fileUploads'))}%` }}
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center p-3 bg-muted rounded-lg">
-              <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
-                <QrCode color="#CA8A04" size={20} />
+            {/* Image Generation */}
+            <div className="p-3 bg-muted rounded-lg">
+              <div className="flex items-center mb-2">
+                <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                  <QrCode color="#CA8A04" size={20} />
+                </div>
+                <div className="flex-1">
+                  <div className="text-lg font-bold text-card-foreground">
+                    {planLimits.imageGeneration === -1 ? '∞' : getRemainingCredits('imageGeneration')}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Image/Gen Credits</div>
+                </div>
+                {getUsagePercentage('imageGeneration') > 80 && planLimits.imageGeneration !== -1 && (
+                  <AlertTriangle size={16} color="#EF4444" />
+                )}
               </div>
-              <div>
-                <div className="text-lg font-bold text-card-foreground">{credits.image}</div>
-                <div className="text-xs text-muted-foreground">Image/Gen Credits</div>
+              <div className="text-xs text-muted-foreground">
+                Used: {currentCredits.imageGeneration} / {planLimits.imageGeneration === -1 ? '∞' : planLimits.imageGeneration}
               </div>
+              {planLimits.imageGeneration !== -1 && planLimits.imageGeneration > 0 && (
+                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full ${getUsagePercentage('imageGeneration') > 80 ? 'bg-red-500' : 'bg-yellow-500'}`}
+                    style={{ width: `${Math.min(100, getUsagePercentage('imageGeneration'))}%` }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -118,6 +189,7 @@ export default function WalletPage() {
             onClick={handleSendCredits}
             type="button"
             aria-label="Send Credits"
+            data-testid="button-send-credits"
           >
             <Send className="text-muted-foreground" size={24} />
           </button>
@@ -129,6 +201,7 @@ export default function WalletPage() {
             onClick={handleReceiveCredits}
             type="button"
             aria-label="Request Credits"
+            data-testid="button-request-credits"
           >
             <ArrowDownLeft className="text-muted-foreground" size={24} />
           </button>
@@ -140,6 +213,7 @@ export default function WalletPage() {
             onClick={() => setShowQRScanner(true)}
             type="button"
             aria-label="Scan QR Code"
+            data-testid="button-scan-qr"
           >
             <QrCode className="text-muted-foreground" size={24} />
           </button>
@@ -151,6 +225,7 @@ export default function WalletPage() {
             onClick={handleTopUp}
             type="button"
             aria-label="Top Up"
+            data-testid="button-top-up"
           >
             <CreditCard className="text-muted-foreground" size={24} />
           </button>

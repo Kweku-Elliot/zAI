@@ -1,7 +1,7 @@
 
 import React, { useState, useContext } from 'react';
 import { useLocation } from 'wouter';
-import { Eye, EyeOff, Mail, Lock, User, Facebook, Twitter, Github } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Chrome, Github } from 'lucide-react';
 import { AuthContext } from '../contexts/AuthContext';
 
 export default function SignupPage() {
@@ -14,7 +14,7 @@ export default function SignupPage() {
         const [emailError, setEmailError] = useState('');
         const [passwordError, setPasswordError] = useState('');
         const [termsAccepted, setTermsAccepted] = useState(false);
-        const { signUp, authLoading } = useContext(AuthContext);
+        const { signUp, authLoading, signInWithGoogle, signInWithGitHub } = useContext(AuthContext);
         const [formError, setFormError] = useState('');
 
         const validateForm = () => {
@@ -63,31 +63,40 @@ export default function SignupPage() {
                 }
         };
 
-        const handleSocialSignup = (provider: string) => {
-                alert(`Signup with ${provider} would be implemented here`);
+        const handleSocialSignup = async (provider: string) => {
+                try {
+                        if (provider === 'Google') {
+                                await signInWithGoogle();
+                        } else if (provider === 'GitHub') {
+                                await signInWithGitHub();
+                        }
+                } catch (err: any) {
+                        setFormError(err?.message ?? `${provider} signup failed`);
+                }
         };
 
                 return (
-                        <div className="min-h-screen flex items-center justify-center bg-background text-foreground mobile-safe-container">
+                        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                                 <div className="w-full max-w-md px-6 py-8">
                                 {/* Header */}
                                                 <div className="mb-8 text-center">
-                                                        <h1 className="text-3xl font-bold text-foreground mb-2">Create Account</h1>
-                                                        <p className="text-muted-foreground">Join us today and start your journey</p>
+                                                        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Create Account</h1>
+                                                        <p className="text-gray-600 dark:text-gray-400">Join us today and start your journey</p>
                                                 </div>
                                 {/* Signup Form */}
-                        <div className="bg-card rounded-2xl p-6 shadow-lg mb-6">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg mb-6">
                                         {/* Name Field */}
                                         <div className="mb-5">
-                                                  <div className="flex items-center border border-border rounded-xl px-4 py-3 bg-background">
+                                                  <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-900">
                                                         <User size={20} color="#6B7280" />
                                                                                 <input
-                                                                                        className="flex-1 ml-3 text-foreground outline-none bg-transparent"
+                                                                                        className="flex-1 ml-3 text-gray-800 dark:text-gray-100 outline-none bg-transparent"
                                                                 type="text"
                                                                 placeholder="Full name"
                                                                 value={name}
                                                                 onChange={e => setName(e.target.value)}
                                                                 autoCapitalize="words"
+                                                                data-testid="input-name"
                                                         />
                                                 </div>
                                                 {nameError && (
@@ -96,15 +105,16 @@ export default function SignupPage() {
                                         </div>
                                         {/* Email Field */}
                                         <div className="mb-5">
-                                                  <div className="flex items-center border border-border rounded-xl px-4 py-3 bg-background">
+                                                  <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-900">
                                                         <Mail size={20} color="#6B7280" />
                                                                                 <input
-                                                                                        className="flex-1 ml-3 text-foreground outline-none bg-transparent"
+                                                                                        className="flex-1 ml-3 text-gray-800 dark:text-gray-100 outline-none bg-transparent"
                                                                 type="email"
                                                                 placeholder="Email address"
                                                                 value={email}
                                                                 onChange={e => setEmail(e.target.value)}
                                                                 autoCapitalize="none"
+                                                                data-testid="input-email"
                                                         />
                                                 </div>
                                                 {emailError && (
@@ -113,14 +123,15 @@ export default function SignupPage() {
                                         </div>
                                         {/* Password Field */}
                                         <div className="mb-4">
-                                                  <div className="flex items-center border border-border rounded-xl px-4 py-3 bg-background">
+                                                  <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-900">
                                                         <Lock size={20} color="#6B7280" />
                                                                                 <input
-                                                                                        className="flex-1 ml-3 text-foreground outline-none bg-transparent"
+                                                                                        className="flex-1 ml-3 text-gray-800 dark:text-gray-100 outline-none bg-transparent"
                                                                 type={showPassword ? 'text' : 'password'}
                                                                 placeholder="Password"
                                                                 value={password}
                                                                 onChange={e => setPassword(e.target.value)}
+                                                                data-testid="input-password"
                                                         />
                                                         <button type="button" onClick={() => setShowPassword(!showPassword)} className="ml-2">
                                                                 {showPassword ? (
@@ -136,13 +147,13 @@ export default function SignupPage() {
                                         </div>
                                         {/* Password Requirements */}
                                                                 <div className="mb-5">
-                                                                        <span className="text-muted-foreground text-sm ml-1">Password must be at least 6 characters</span>
+                                                                        <span className="text-gray-500 dark:text-gray-400 text-sm ml-1">Password must be at least 6 characters</span>
                                         </div>
                                         {/* Terms Agreement */}
                                                                 <div className="mb-6 flex items-start">
                                                                         <button
                                                                                 type="button"
-                                                                                className={`h-5 w-5 rounded border-2 mr-3 mt-1 ${termsAccepted ? 'bg-primary border-primary' : 'border-border'}`}
+                                                                                className={`h-5 w-5 rounded border-2 mr-3 mt-1 ${termsAccepted ? 'bg-blue-600 dark:bg-blue-700 border-blue-600 dark:border-blue-700' : 'border-gray-300 dark:border-gray-700'}`}
                                                                                 onClick={() => setTermsAccepted(!termsAccepted)}
                                                                         >
                                                                                 {termsAccepted && (
@@ -152,55 +163,53 @@ export default function SignupPage() {
                                                                                         </span>
                                                                                 )}
                                                                         </button>
-                                                                        <span className="flex-1 text-muted-foreground">
-                                                                                I agree to the <span className="text-primary font-bold">Terms of Service</span> and <span className="text-primary font-bold">Privacy Policy</span>
+                                                                        <span className="flex-1 text-gray-700 dark:text-gray-300">
+                                                                                I agree to the <span className="text-blue-600 dark:text-blue-300 font-bold">Terms of Service</span> and <span className="text-blue-600 dark:text-blue-300 font-bold">Privacy Policy</span>
                                                                         </span>
                                         </div>
                                         {/* Signup Button */}
                                                                 <button
-                                                                        className="w-full bg-primary rounded-xl py-4 text-primary-foreground font-bold text-lg mb-6"
+                                                                        className="w-full bg-blue-600 dark:bg-blue-700 rounded-xl py-4 text-white font-bold text-lg mb-6"
                                                                         onClick={handleSignup}
                                                                         disabled={authLoading}
                                                                         type="button"
+                                                                        data-testid="button-signup"
                                                                 >
                                                                         Create Account
                                                                 </button>
                                         {formError && <div className="text-red-500 text-sm mt-1">{formError}</div>}
                                         {/* Divider */}
                                                                 <div className="flex items-center mb-6">
-                                                                        <div className="flex-1 h-px bg-border" />
-                                                                        <span className="text-muted-foreground mx-4">OR</span>
-                                                                        <div className="flex-1 h-px bg-border" />
+                                                                        <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
+                                                                        <span className="text-gray-500 dark:text-gray-400 mx-4">OR</span>
+                                                                        <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
                                                                 </div>
                                         {/* Social Signup Buttons */}
-                                                                <div className="flex justify-between mb-8">
+                                                                <div className="space-y-3 mb-8">
                                                                         <button
-                                                                                className="flex-1 mx-1 bg-card border border-border rounded-xl py-3 flex items-center justify-center"
+                                                                                className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl py-3 flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                                                                 type="button"
-                                                                                onClick={() => handleSocialSignup('Facebook')}
+                                                                                onClick={() => handleSocialSignup('Google')}
+                                                                                data-testid="button-google-signup"
                                                                         >
-                                                                                <Facebook size={24} color="#3B82F6" />
+                                                                                <Chrome size={20} color="#4285F4" />
+                                                                                <span className="text-gray-700 dark:text-gray-300 font-medium">Continue with Google</span>
                                                                         </button>
                                                                         <button
-                                                                                className="flex-1 mx-1 bg-card border border-border rounded-xl py-3 flex items-center justify-center"
-                                                                                type="button"
-                                                                                onClick={() => handleSocialSignup('Twitter')}
-                                                                        >
-                                                                                <Twitter size={24} color="#3B82F6" />
-                                                                        </button>
-                                                                        <button
-                                                                                className="flex-1 mx-1 bg-card border border-border rounded-xl py-3 flex items-center justify-center"
+                                                                                className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl py-3 flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                                                                 type="button"
                                                                                 onClick={() => handleSocialSignup('GitHub')}
+                                                                                data-testid="button-github-signup"
                                                                         >
-                                                                                <Github size={24} color="#374151" />
+                                                                                <Github size={20} color="#374151" />
+                                                                                <span className="text-gray-700 dark:text-gray-300 font-medium">Continue with GitHub</span>
                                                                         </button>
                                                                 </div>
                                 </div>
                                 {/* Login Link */}
                                                 <div className="flex justify-center">
-                                                        <span className="text-muted-foreground">Already have an account? </span>
-                                                        <button type="button" className="text-primary font-bold ml-1" onClick={() => setLocation('/login')}>Sign In</button>
+                                                        <span className="text-gray-600 dark:text-gray-400">Already have an account? </span>
+                                                        <button type="button" className="text-blue-600 dark:text-blue-300 font-bold ml-1" onClick={() => setLocation('/login')}>Sign In</button>
                                                 </div>
                         </div>
                         {/* Safe area bottom padding */}
