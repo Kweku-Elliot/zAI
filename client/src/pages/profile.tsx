@@ -16,11 +16,7 @@ export default function ProfileSettingsPage({ onBack }: { onBack?: () => void })
   const [email, setEmail] = useState(profile?.email || user?.email || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || avatarImages[0]);
   const [bio, setBio] = useState(profile?.bio || '');
-  const [language, setLanguage] = useState(profile?.language || 'en');
-  const [theme, setTheme] = useState(profile?.theme || 'system');
-  const [currency, setCurrency] = useState(profile?.currency || 'GHS');
-  const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notifications_enabled ?? true);
-  const [dataCollectionConsent, setDataCollectionConsent] = useState(profile?.data_collection_consent ?? false);
+
   const [subscriptionPlan, setSubscriptionPlan] = useState(profile?.subscription_plan || 'free');
   const [subscriptionStatus, setSubscriptionStatus] = useState(profile?.subscription_status || 'active');
   const [createdAt, setCreatedAt] = useState(profile?.created_at || '');
@@ -30,11 +26,6 @@ export default function ProfileSettingsPage({ onBack }: { onBack?: () => void })
     setEmail(profile?.email || user?.email || '');
     setAvatarUrl(profile?.avatar_url || avatarImages[0]);
     setBio(profile?.bio || '');
-    setLanguage(profile?.language || 'en');
-    setTheme(profile?.theme || 'system');
-    setCurrency(profile?.currency || 'GHS');
-    setNotificationsEnabled(profile?.notifications_enabled ?? true);
-    setDataCollectionConsent(profile?.data_collection_consent ?? false);
     setSubscriptionPlan(profile?.subscription_plan || 'free');
     setSubscriptionStatus(profile?.subscription_status || 'active');
     setCreatedAt(profile?.created_at || '');
@@ -102,46 +93,7 @@ export default function ProfileSettingsPage({ onBack }: { onBack?: () => void })
               rows={2}
             />
           </div>
-          <div className="mb-4">
-            <div className="text-gray-500 text-sm mb-1">Language</div>
-            <input
-              className="bg-gray-50 dark:bg-gray-900 rounded-lg px-4 py-3 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 w-full"
-              value={language}
-              onChange={e => setLanguage(e.target.value)}
-            />
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-500 text-sm mb-1">Theme</div>
-            <input
-              className="bg-gray-50 dark:bg-gray-900 rounded-lg px-4 py-3 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 w-full"
-              value={theme}
-              onChange={e => setTheme(e.target.value)}
-            />
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-500 text-sm mb-1">Currency</div>
-            <input
-              className="bg-gray-50 dark:bg-gray-900 rounded-lg px-4 py-3 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 w-full"
-              value={currency}
-              onChange={e => setCurrency(e.target.value)}
-            />
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-500 text-sm mb-1">Notifications Enabled</div>
-            <input
-              type="checkbox"
-              checked={notificationsEnabled}
-              onChange={e => setNotificationsEnabled(e.target.checked)}
-            />
-          </div>
-          <div className="mb-4">
-            <div className="text-gray-500 text-sm mb-1">Data Collection Consent</div>
-            <input
-              type="checkbox"
-              checked={dataCollectionConsent}
-              onChange={e => setDataCollectionConsent(e.target.checked)}
-            />
-          </div>
+       
         </div>
 
         {/* Account Information */}

@@ -6,7 +6,7 @@ import { storage } from "./storage";
 // import { stripeService } from "./services/stripe";
 // import { encryptionService } from "./services/encryption";
 import { zenuxAIV2Service } from "./services/zenux"; // Import ZenuxAIV2Service
-import { insertMessageSchema, insertChatSchema, insertTransactionSchema, insertUserSchema, insertUsageAnalyticsSchema } from "@shared/schema";
+import { insertMessageSchema, insertChatSchema, insertTransactionSchema, insertUserSchema } from "@shared/schema";
 import multer from "multer";
 
 // Configure multer for file uploads
@@ -128,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const convId = (conversation_id || conversationId || chatId) || `conv-${Date.now()}`;
       // Try to derive user id from Authorization header (Bearer token) via Supabase server client.
       // Prefer server-verified token; fall back to provided user_id only if token not present.
-      let uid = (user_id || userId) || 'anonymous';
+      let uid = undefined;
       const authHeader = req.headers.authorization || req.headers.Authorization;
       if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
         const token = authHeader.split(' ')[1];
@@ -145,36 +145,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(401).json({ message: 'Invalid or expired token' });
         }
       } else {
-        // No token: for safety we could reject; for now log and fall back to provided user_id
-        console.warn('No Authorization bearer token provided; falling back to provided user_id (less secure).');
+        // No token: reject request
+        return res.status(401).json({ message: 'Authorization bearer token required' });
       }
 
-      // Use ZenuxAIV2Service for streaming chat
-      const chatStream = await zenuxAIV2Service.chat({
+      // Use ZenuxAIV2Service for chat (streaming)
+      const aiResponse = await zenuxAIV2Service.chat({
         message,
         user_id: uid,
         conversation_id: convId,
+        stream: true
       });
 
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-
-      chatStream.on('data', (chunk) => {
-        res.write(`data: ${chunk.toString()}\n\n`);
-      });
-
-      chatStream.on('end', () => {
+      // If response is a readable stream, pipe as SSE
+      if (aiResponse && aiResponse.readable) {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        aiResponse.on('data', (chunk: any) => {
+          res.write(`data: ${chunk.toString()}\n\n`);
+        });
+        aiResponse.on('end', () => {
+          res.end();
+        });
+        aiResponse.on('error', (error: any) => {
+          console.error('Zenux chat stream error:', error);
+          try {
+            res.write(`data: {"error": "Failed to stream AI response: ${error.message}"}\n\n`);
+          } catch (_err) { void _err; }
+          res.end();
+        });
+      } else {
+        // Fallback: treat as a single message
+        let assistantText = '';
+        if (aiResponse && aiResponse.choices && aiResponse.choices[0]?.message?.content) {
+          assistantText = aiResponse.choices[0].message.content;
+        }
+        res.write(`data: ${JSON.stringify({ response: assistantText })}\n\n`);
         res.end();
-      });
-
-      chatStream.on('error', (error) => {
-        console.error('Zenux chat stream error:', error);
-        try {
-          res.status(500).write(`data: {"error": "Failed to stream AI response: ${error.message}"}\n\n`);
-  } catch (_err) { void _err; }
-        res.end();
-      });
+      }
 
     } catch (error: any) {
       console.error("AI chat error:", error);
@@ -280,26 +289,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   */
 
-  // Usage Analytics routes
-  app.post("/api/usage-analytics", async (req, res) => {
-    try {
-      const analyticsData = insertUsageAnalyticsSchema.parse(req.body);
-      const analytics = await storage.createUsageAnalytics(analyticsData);
-      res.json({ analytics });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  app.get("/api/usage-analytics/:userId", async (req, res) => {
-    try {
-      const analytics = await storage.getUsageAnalyticsByUserId(req.params.userId);
-      res.json({ analytics });
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
   // Transaction routes
   app.post("/api/transactions", async (req, res) => {
     try {
@@ -382,74 +371,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   //     res.status(400).json({ error: { message: error.message } });
   //   }
   // });
-
-  // Paystack payment routes
-  app.post("/api/paystack/initialize", async (req, res) => {
-    try {
-      const { email, amount } = req.body;
-      
-      if (!email || !amount) {
-        return res.status(400).json({ message: "Email and amount are required" });
-      }
-
-      // In a real implementation, you would use the Paystack SDK
-      // For now, we'll simulate the response
-      const reference = `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      const response = {
-        status: true,
-        message: "Authorization URL created",
-        data: {
-          authorization_url: `https://checkout.paystack.com/${reference}`,
-          access_code: `${reference}_access`,
-          reference: reference
-        }
-      };
-
-      res.json(response);
-    } catch (error: any) {
-      console.error("Paystack initialization error:", error);
-      res.status(500).json({ message: "Payment initialization failed" });
-    }
-  });
-
-  app.post("/api/paystack/verify", async (req, res) => {
-    try {
-      const { reference } = req.body;
-      
-      if (!reference) {
-        return res.status(400).json({ message: "Reference is required" });
-      }
-
-      // In a real implementation, you would verify with Paystack API
-      // For now, we'll simulate a successful verification
-      const response = {
-        status: true,
-        message: "Verification successful",
-        data: {
-          id: Date.now(),
-          domain: "test",
-          status: "success",
-          reference: reference,
-          amount: 50000, // Amount in kobo
-          gateway_response: "Successful",
-          paid_at: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-          channel: "card",
-          currency: "GHS",
-          customer: {
-            id: Date.now(),
-            email: "user@example.com"
-          }
-        }
-      };
-
-      res.json(response);
-    } catch (error: any) {
-      console.error("Paystack verification error:", error);
-      res.status(500).json({ message: "Payment verification failed" });
-    }
-  });
 
   // Create HTTP server
   const httpServer = createServer(app);

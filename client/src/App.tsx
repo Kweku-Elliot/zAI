@@ -24,16 +24,17 @@ import UsageAnalyticsSettingsPage from "@/pages/usage-analytics";
 import ReceiptPage from "@/pages/receipt";
 import PaymentConfirmedPage from "@/pages/payment-confirmed";
 import SplashScreen from "@/pages/splash";
-import OnboardingPage from "@/pages/onboarding";
-import PlanComparisonPage from "@/pages/plan-comparison";
+import TopUp from  "@/pages/top-up";
+// import OnboardingPage from "@/not-used-pages/onboarding";
+// import PlanComparisonPage from "@/not-used-pages/plan-comparison";
 import ImageVideoGenPage from "@/pages/image-video-gen";
-import ContactsPage from "@/pages/contacts";
+// import ContactsPage from "@/not-used-pages/contacts";
 import NotFound from "@/pages/not-found";
 import ChatPage from "@/pages/Chat";
-import CrackTheCodePage from "@/pages/crack-the-code";
+// import CrackTheCodePage from "@/not-used-pages/crack-the-code";
 import CodeExecutionPage from "@/pages/code-execution";
 import ProjectSetupScreen from "@/pages/project-setup";
-import ScaffoldGenerator from "@/pages/generation-ui";
+// import ScaffoldGenerator from "@/not-used-pages/generation-ui";
 
 type Page =
   | 'home'
@@ -42,7 +43,7 @@ type Page =
   | 'billing'
   | 'settings'
   | 'appearance'
-  | 'wallet'
+  | 'credit'
   | 'send-receive'
   | 'checkout'
   | 'profile'
@@ -54,15 +55,16 @@ type Page =
   | 'receipt'
   | 'payment-confirmed'
   | 'splash'
-  | 'onboarding'
-  | 'plan-comparison'
+  | 'top-up'
+  // | 'onboarding'
+  // | 'plan-comparison'
   | 'image-video-gen'
   | 'contacts'
-  | 'crack-the-code'
+  // | 'crack-the-code'
   | 'code-execution'
   | 'project-setup'
-  | 'generation-ui'
-  | 'credit';
+  // | 'generation-ui'
+  // | 'credit';
 
 function Router() {
   // derive current page from the URL so wouter navigation works
@@ -83,8 +85,6 @@ function Router() {
         return <SettingsPage />;
       case 'appearance':
         return <AppearanceSettingsPage />;
-      case 'wallet':
-        return <WalletPage />;
       case 'send-receive':
         return <SendReceivePage />;
       case 'checkout':
@@ -107,24 +107,30 @@ function Router() {
         return <PaymentConfirmedPage />;
       case 'splash':
         return <SplashScreen />;
-      case 'onboarding':
-        return <OnboardingPage />;
-      case 'plan-comparison':
-        return <PlanComparisonPage />;
       case 'image-video-gen':
         return <ImageVideoGenPage />;
-      case 'contacts':
-        return <ContactsPage />;
-      case 'crack-the-code':
-        return <CrackTheCodePage />;
       case 'code-execution':
-        return <CodeExecutionPage />;
-      case 'project-setup':
-        return <ProjectSetupScreen />;
-      case 'generation-ui':
-        return <ScaffoldGenerator />;
+        return <CodeExecutionPage />; 
       case 'credit':
-        return <WalletPage />;
+        return <WalletPage />; 
+      case 'project-setup':
+        return <ProjectSetupScreen />; 
+      case 'top-up':
+        return <TopUp/>   
+      // case 'onboarding':
+      //   return <OnboardingPage />;
+      // case 'plan-comparison':
+      //   return <PlanComparisonPage />;
+     
+      // case 'contacts':
+      //   return <ContactsPage />;
+      // case 'crack-the-code':
+      //   return <CrackTheCodePage />;
+      
+      
+      // case 'generation-ui':
+      //   return <ScaffoldGenerator />;
+     
       default:
         // in case of unknown slug, fall back to NotFound
         return <NotFound />;
@@ -144,7 +150,6 @@ function Router() {
 }
 
 import { AuthProvider } from "@/contexts/AuthContext";
-import { CreditsProvider } from "@/contexts/CreditsContext";
 
 function App() {
   return (
@@ -152,12 +157,10 @@ function App() {
       <ThemeProvider>
         <AppProvider>
           <AuthProvider>
-            <CreditsProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Router />
-              </TooltipProvider>
-            </CreditsProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
           </AuthProvider>
         </AppProvider>
       </ThemeProvider>

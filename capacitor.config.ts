@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.zAI.ai',
-  appName: 'zAI',
+  appName: 'ZeNux',
   webDir: 'dist/public'
 };
 

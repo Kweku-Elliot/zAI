@@ -9,11 +9,11 @@ const settingCategories = [
   { id: 'notifications', title: 'Notifications', icon: Bell, color: 'bg-orange-100', iconColor: '#EA580C' },
   { id: 'privacy', title: 'Privacy & Security', icon: Shield, color: 'bg-red-100', iconColor: '#DC2626' },
   { id: 'analytics', title: 'Usage & Analytics', icon: BarChart3, color: 'bg-cyan-100', iconColor: '#0891B2' },
-  { id: 'about', title: 'About & Support', icon: Info, color: 'bg-gray-100', iconColor: '#6B7280' },
+  { id: 'about', title: 'About', icon: Info, color: 'bg-gray-100', iconColor: '#6B7280' },
 ];
 
 const quickActions = [
-  { id: 'billing', title: 'Billing', icon: CreditCard, color: 'bg-indigo-100', iconColor: '#4F46E5' },
+  { id: 'personality', title: 'Personality', icon: CreditCard, color: 'bg-indigo-100', iconColor: '#4F46E5' },
   { id: 'export', title: 'Export Data', icon: Download, color: 'bg-emerald-100', iconColor: '#059669' },
   { id: 'support', title: 'Support', icon: Headphones, color: 'bg-amber-100', iconColor: '#D97706' },
 ];

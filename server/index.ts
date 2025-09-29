@@ -53,16 +53,15 @@ app.use((req, res, next) => {
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
-  } else {
-    // Only serve static files in production
-    serveStatic(app);
   }
+  // Always serve static files for the client
+  serveStatic(app);
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 3001 for backend (frontend uses 5000).
+  // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
-  // Frontend will be served on port 5000 by Vite in dev mode.
-  const port = parseInt(process.env.PORT || '3001', 10);
+  // It is the only port that is not firewalled.
+  const port = parseInt(process.env.PORT || '3000', 10);
   // `reusePort` is not supported on all platforms (notably Windows).
   // Only set it when running on platforms that support it.
   const listenOptions: any = {

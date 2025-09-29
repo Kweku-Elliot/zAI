@@ -7,7 +7,6 @@ import { VoiceRecordingModal } from './VoiceRecordingModal';
 import { useApp } from '@/contexts/AppContext';
 import { useAI } from '@/hooks/useAI';
 import { useOfflineStorage } from '@/hooks/useOfflineStorage';
-import { useCredits } from '@/contexts/CreditsContext';
 import { ChatMessage } from '@/types';
 import { Wand2, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -16,7 +15,6 @@ export function ChatView() {
   const { currentChatId, user, isOnline } = useApp();
   const { sendMessage, processFile, transcribeAudio } = useAI();
   const { getMessages, saveMessage, saveChat } = useOfflineStorage();
-  const { getRemainingCredits, trackUsage } = useCredits();
   const { toast } = useToast();
   
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -62,12 +60,11 @@ export function ChatView() {
   const handleSendMessage = async (content: string, type: 'text') => {
     if (!currentChatId || !user) return;
 
-    // Check AI credits limits using credits system
-    const remainingCredits = getRemainingCredits('aiCredits');
-    if (remainingCredits === 0) {
+    // Check usage limits
+    if (user.plan.messagesUsed >= user.plan.messagesLimit) {
       toast({
-        title: "AI credits limit reached",
-        description: "You've reached your AI credits limit for this month. Upgrade your plan to continue.",
+        title: "Message limit reached",
+        description: `You've used all ${user.plan.messagesLimit} messages for this month. Upgrade your plan to continue.`,
         variant: "destructive",
       });
       return;
@@ -94,9 +91,6 @@ export function ChatView() {
     // Send to AI if online
     if (isOnline) {
       try {
-        // Track AI chat usage
-        await trackUsage('chat', 1);
-        
         const response = await sendMessage.mutateAsync({
           message: content,
           chatId: currentChatId,
@@ -143,12 +137,11 @@ export function ChatView() {
   const handleSendFile = async (file: File) => {
     if (!currentChatId || !user) return;
 
-    // Check file upload limits using credits system
-    const remainingUploads = getRemainingCredits('fileUploads');
-    if (remainingUploads === 0) {
+    // Check file upload limits
+    if (user.plan.filesUploaded >= user.plan.filesLimit) {
       toast({
         title: "File upload limit reached",
-        description: "You've reached your file upload limit for this month. Upgrade your plan to continue.",
+        description: `You've used all ${user.plan.filesLimit} file uploads for this month.`,
         variant: "destructive",
       });
       return;
@@ -184,9 +177,6 @@ export function ChatView() {
     await saveMessage(fileMessage);
 
     try {
-      // Track file upload usage
-      await trackUsage('file_analysis', 1);
-      
       const response = await processFile.mutateAsync({ file });
       
       const aiMessage: ChatMessage = {
@@ -203,11 +193,6 @@ export function ChatView() {
       setMessages(prev => [...prev, aiMessage]);
       await saveMessage(aiMessage);
 
-      toast({
-        title: "File processed",
-        description: `File "${file.name}" has been analyzed successfully.`,
-      });
-
     } catch (error) {
       toast({
         title: "File processing failed",
@@ -220,12 +205,11 @@ export function ChatView() {
   const handleVoiceRecording = async (audioBlob: Blob, duration: number) => {
     if (!currentChatId || !user) return;
 
-    // Check voice limits using credits system
-    const remainingMinutes = getRemainingCredits('voiceMinutes');
-    if (remainingMinutes === 0) {
+    // Check voice limits
+    if (user.plan.voiceMinutesUsed >= user.plan.voiceMinutesLimit) {
       toast({
-        title: "Voice minutes limit reached",
-        description: "You've reached your voice minutes limit for this month. Upgrade your plan to continue.",
+        title: "Voice limit reached",
+        description: `You've used all ${user.plan.voiceMinutesLimit} voice minutes for this month.`,
         variant: "destructive",
       });
       return;
@@ -249,10 +233,6 @@ export function ChatView() {
 
     if (isOnline) {
       try {
-        // Track voice usage
-        const minutes = Math.ceil(duration / 60);
-        await trackUsage('voice_transcription', minutes);
-        
         const response = await transcribeAudio.mutateAsync({ audioBlob });
         
         if (response.text) {

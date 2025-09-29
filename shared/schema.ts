@@ -1,141 +1,138 @@
-import { pgTable, text, timestamp, boolean, integer, decimal, json } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, timestamp, integer, boolean, jsonb, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table
 export const users = pgTable("users", {
-  id: text("id").primaryKey(),
-  email: text("email").unique().notNull(),
-  username: text("username").unique().notNull(),
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
   password: text("password").notNull(),
-  fullName: text("full_name"),
-  profileImage: text("profile_image"),
-  phoneNumber: text("phone_number"),
-  isEmailVerified: boolean("is_email_verified").default(false),
-  isPhoneVerified: boolean("is_phone_verified").default(false),
-  credits: decimal("credits", { precision: 10, scale: 2 }).default("0.00"),
-  plan: text("plan").default("free"), // free, premium, enterprise
-  planExpiresAt: timestamp("plan_expires_at"),
-  language: text("language").default("en"),
-  timezone: text("timezone").default("UTC"),
-  preferences: json("preferences"),
+  displayName: text("display_name"),
+  bio: text("bio"),
+  avatar: text("avatar"),
+  plan: text("plan").default("free").notNull(), // free, plus, pro, business
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  messagesUsed: integer("messages_used").default(0),
+  filesUploaded: integer("files_uploaded").default(0),
+  voiceMinutesUsed: integer("voice_minutes_used").default(0),
+  apiCallsUsed: integer("api_calls_used").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Chats table
 export const chats = pgTable("chats", {
-  id: text("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
   title: text("title").notNull(),
-  description: text("description"),
-  isGroup: boolean("is_group").default(false),
-  participants: json("participants"), // array of user IDs for group chats
-  metadata: json("metadata"),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Messages table
 export const messages = pgTable("messages", {
-  id: text("id").primaryKey(),
-  chatId: text("chat_id").references(() => chats.id).notNull(),
-  userId: text("user_id").references(() => users.id).notNull(),
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  chatId: varchar("chat_id").references(() => chats.id).notNull(),
+  role: text("role").notNull(), // user, assistant
   content: text("content").notNull(),
-  type: text("type").notNull(), // text, image, file, voice, video
-  metadata: json("metadata"),
+  messageType: text("message_type").default("text"), // text, voice, file, image
+  metadata: jsonb("metadata"), // file info, voice duration, etc.
   encrypted: boolean("encrypted").default(false),
-  aiGenerated: boolean("ai_generated").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Transactions table
-export const transactions = pgTable("transactions", {
-  id: text("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
-  type: text("type").notNull(), // credit_purchase, credit_send, credit_receive, ai_usage
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: text("currency").default("USD"),
-  status: text("status").notNull(), // pending, completed, failed, cancelled
-  description: text("description"),
-  paymentMethod: text("payment_method"), // paystack, stripe, manual
-  paymentReference: text("payment_reference"),
-  recipientId: text("recipient_id").references(() => users.id),
-  metadata: json("metadata"),
   aiValidated: boolean("ai_validated").default(false),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Group Wallets table
 export const groupWallets = pgTable("group_wallets", {
-  id: text("id").primaryKey(),
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
-  description: text("description"),
-  ownerId: text("owner_id").references(() => users.id).notNull(),
-  members: json("members"), // array of user IDs
-  balance: decimal("balance", { precision: 10, scale: 2 }).default("0.00"),
-  currency: text("currency").default("USD"),
-  isActive: boolean("is_active").default(true),
-  metadata: json("metadata"),
+  balance: decimal("balance", { precision: 12, scale: 2 }).default("0.00"),
+  currency: text("currency").default("GHS"),
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  encrypted: boolean("encrypted").default(true),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Gift Credits table
+export const walletMembers = pgTable("wallet_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  walletId: varchar("wallet_id").references(() => groupWallets.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  role: text("role").default("member"), // admin, member
+  contribution: decimal("contribution", { precision: 12, scale: 2 }).default("0.00"),
+  joinedAt: timestamp("joined_at").defaultNow(),
+});
+
+export const transactions = pgTable("transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fromUserId: varchar("from_user_id").references(() => users.id),
+  toUserId: varchar("to_user_id").references(() => users.id),
+  walletId: varchar("wallet_id").references(() => groupWallets.id),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  currency: text("currency").default("GHS"),
+  type: text("type").notNull(), // p2p, wallet_contribution, gift_credit
+  status: text("status").default("pending"), // pending, confirmed, failed, queued
+  paymentMethod: text("payment_method"), // mtn_momo, vodafone_cash, airtel_tigo, card
+  aiValidated: boolean("ai_validated").default(false),
+  offlineQueued: boolean("offline_queued").default(false),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  confirmedAt: timestamp("confirmed_at"),
+});
+
 export const giftCredits = pgTable("gift_credits", {
-  id: text("id").primaryKey(),
-  senderId: text("sender_id").references(() => users.id).notNull(),
-  recipientId: text("recipient_id").references(() => users.id),
-  recipientEmail: text("recipient_email"),
-  recipientPhone: text("recipient_phone"),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: text("currency").default("USD"),
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fromUserId: varchar("from_user_id").references(() => users.id).notNull(),
+  toUserId: varchar("to_user_id").references(() => users.id).notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
   message: text("message"),
-  code: text("code").unique().notNull(),
-  qrCode: text("qr_code"),
-  status: text("status").notNull(), // pending, claimed, expired, cancelled
+  status: text("status").default("pending"), // pending, claimed, expired
+  aiGenerated: boolean("ai_generated").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
   expiresAt: timestamp("expires_at"),
-  claimedAt: timestamp("claimed_at"),
-  metadata: json("metadata"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Usage Analytics table
-export const usageAnalytics = pgTable("usage_analytics", {
-  id: text("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
-  feature: text("feature").notNull(), // chat, image_gen, file_analysis, voice_transcription
-  usageType: text("usage_type").notNull(), // tokens, requests, minutes, files
-  amount: integer("amount").notNull(),
-  cost: decimal("cost", { precision: 10, scale: 4 }),
-  metadata: json("metadata"),
-  createdAt: timestamp("created_at").defaultNow(),
+// Insert schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
-// Create Zod schemas for validation
-export const insertUserSchema = createInsertSchema(users);
-export const insertChatSchema = createInsertSchema(chats);
-export const insertMessageSchema = createInsertSchema(messages);
-export const insertTransactionSchema = createInsertSchema(transactions);
-export const insertGroupWalletSchema = createInsertSchema(groupWallets);
-export const insertGiftCreditSchema = createInsertSchema(giftCredits);
-export const insertUsageAnalyticsSchema = createInsertSchema(usageAnalytics);
+export const insertChatSchema = createInsertSchema(chats).omit({
+  id: true,
+  createdAt: true,
+});
 
-// Export types
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertGroupWalletSchema = createInsertSchema(groupWallets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertTransactionSchema = createInsertSchema(transactions).omit({
+  id: true,
+  createdAt: true,
+  confirmedAt: true,
+});
+
+export const insertGiftCreditSchema = createInsertSchema(giftCredits).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types
 export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Chat = typeof chats.$inferSelect;
-export type InsertChat = typeof chats.$inferInsert;
+export type InsertChat = z.infer<typeof insertChatSchema>;
 export type Message = typeof messages.$inferSelect;
-export type InsertMessage = typeof messages.$inferInsert;
-export type Transaction = typeof transactions.$inferSelect;
-export type InsertTransaction = typeof transactions.$inferInsert;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type GroupWallet = typeof groupWallets.$inferSelect;
-export type InsertGroupWallet = typeof groupWallets.$inferInsert;
+export type InsertGroupWallet = z.infer<typeof insertGroupWalletSchema>;
+export type Transaction = typeof transactions.$inferSelect;
+export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type GiftCredit = typeof giftCredits.$inferSelect;
-export type InsertGiftCredit = typeof giftCredits.$inferInsert;
-export type UsageAnalytics = typeof usageAnalytics.$inferSelect;
-export type InsertUsageAnalytics = typeof usageAnalytics.$inferInsert;
+export type InsertGiftCredit = z.infer<typeof insertGiftCreditSchema>;

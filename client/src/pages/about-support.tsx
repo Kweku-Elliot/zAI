@@ -3,18 +3,16 @@ import TopBar from '@/components/TopBar';
 import { Info, Globe, Mail, Users, Heart, ExternalLink } from 'lucide-react';
 
 const appInfo = {
-  name: 'Zenux AI Chat',
+  name: 'Zenux AI',
   version: '1.2.4',
   build: '245',
 };
 
 const features = [
-  'AI-Powered Conversations',
-  'Voice Message Support',
-  'File Sharing & Processing',
-  'Multi-Device Sync',
-  'End-to-End Encryption',
-  'Customizable Interface',
+  'Image/Video-Generation',
+  'Advaced Proceesing',
+  'AI-Powered Code Exervution',
+  'Multimodality',
 ];
 
 const externalLinks = [
@@ -25,10 +23,10 @@ const externalLinks = [
 ];
 
 const credits = [
-  { name: 'React Native', role: 'Framework' },
-  { name: 'NativeWind', role: 'Styling' },
+  { name: 'Vite', role: 'Framework' },
+  { name: 'TailWind', role: 'Styling' },
   { name: 'Lucide Icons', role: 'Icon Library' },
-  { name: 'Expo', role: 'Development Tools' },
+  { name: 'Capacitor', role: 'Development Tools' },
 ];
 
 export default function AboutSupportSettingsPage({ onBack }: { onBack?: () => void }) {
@@ -38,7 +36,7 @@ export default function AboutSupportSettingsPage({ onBack }: { onBack?: () => vo
 
   return (
   <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] dark:text-white">
-      <TopBar title="About & Support" onBack={onBack} />
+      <TopBar title="About" onBack={onBack} />
       <div className="flex-1 px-4 py-4 max-w-2xl w-full mx-auto">
         {/* App Information */}
   <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm flex flex-col items-center">
@@ -111,18 +109,7 @@ export default function AboutSupportSettingsPage({ onBack }: { onBack?: () => vo
           </div>
         </div>
       </div>
-      {/* Footer */}
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <div className="flex flex-col items-center mb-4">
-          <span className="text-gray-500 text-sm">© 2023 Zenux AI Technologies</span>
-          <span className="text-gray-400 text-xs mt-1">All rights reserved</span>
-        </div>
-        <div className="flex flex-row justify-center gap-4">
-          <button className="text-blue-500 text-sm">Terms of Service</button>
-          <button className="text-blue-500 text-sm">Privacy Policy</button>
-          <button className="text-blue-500 text-sm">Licenses</button>
-        </div>
-      </div>
+     
       {/* Safe area bottom padding */}
       <div className="pb-[env(safe-area-inset-bottom)]"></div>
     </div>

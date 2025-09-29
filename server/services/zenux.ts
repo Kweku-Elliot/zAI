@@ -38,7 +38,7 @@ class ZenuxAIService {
       const response = await axios.post(
         ZENUX_CHAT_API_URL!,
         {
-          model: "zenux-gpt-5",
+          model: "zenux-0",
           messages: [
             {
               role: "system",
@@ -63,7 +63,7 @@ class ZenuxAIService {
           response.data.choices?.[0]?.message?.content ||
           "I apologize, but I couldn't generate a response. Please try again.",
         metadata: {
-          model: "zenux-gpt-5",
+          model: "zenux-0",
           tokens: response.data.usage?.total_tokens || 0,
           timestamp: new Date().toISOString(),
         },
@@ -230,7 +230,7 @@ class ZenuxAIService {
       const response = await axios.post(
         ZENUX_CHAT_API_URL!,
         {
-          model: "zenux-gpt-5",
+          model: "zenux-0",
           messages: [
             {
               role: "system",
@@ -272,34 +272,41 @@ class ZenuxAIService {
 export const zenuxAIService = new ZenuxAIService();
 
 // --- Enhanced v2 ZenuxAIService ---
-import { Readable } from 'stream';
 
 class ZenuxAIV2Service {
-  async chat({ message, user_id, conversation_id, files }: {
+  async chat({ message, user_id, conversation_id, files, stream = false }: {
     message: string;
     user_id: string;
     conversation_id: string;
     files?: string[];
-  }): Promise<Readable> {
-    // Streams markdown response from /z1/chat/completions (or /api/chat)
+    stream?: boolean;
+  }): Promise<any> {
+    // Send request in OpenAI format
+    const payload: any = {
+      messages: [
+        { role: 'user', content: message }
+      ],
+      user_id,
+      conversation_id,
+      enhanced: true,
+      enhanced_v2: true,
+      model: 'zenux-1o-alpha',
+      stream,
+      temperature: 0.7,
+      max_tokens: 1000
+    };
+    if (files) payload.files = files;
     const response = await axios.post(
       ZENUX_CHAT_API_URL!,
-      {
-        message,
-        user_id,
-        conversation_id,
-        files,
-        enhanced: true,
-        enhanced_v2: true
-      },
+      payload,
       {
         headers: {
           Authorization: `Bearer ${ZENUX_API_KEY}`,
         },
-        responseType: 'stream',
+        responseType: stream ? 'stream' : 'json',
       }
     );
-    return response.data; // Readable stream
+    return response.data;
   }
 
   async analyzeFile({ file, prompt, user_id, conversation_id }: {
@@ -318,7 +325,7 @@ class ZenuxAIV2Service {
     formData.append("conversation_id", conversation_id);
     formData.append("enhanced_v2", "true");
     const response = await axios.post(
-      "https://api.zenux.ai/api/file/analyze",
+      ZENUX_FILE_API_URL!,
       formData,
       {
         headers: {
@@ -335,7 +342,7 @@ class ZenuxAIV2Service {
     user_id: string;
   }): Promise<{ url: string }[]> {
     const response = await axios.post(
-      "https://api.zenux.ai/v1/images/generate",
+      ZENUX_FILE_API_URL!.replace('/upload', '/v1/images/generate'),
       {
         prompt,
         model: "zenux-dalle-3",
@@ -359,7 +366,7 @@ class ZenuxAIV2Service {
     user_id: string;
   }): Promise<any> {
     const response = await axios.post(
-      "https://api.zenux.ai/api/research",
+      ZENUX_ANALYTICS_URL!.replace('/api/analytics', '/api/research'),
       {
         query,
         user_id,

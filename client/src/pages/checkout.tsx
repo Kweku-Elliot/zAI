@@ -1,71 +1,27 @@
-import React, { useState, useContext } from 'react';
+// ...existing code...
+import React, { useState } from 'react';
 import { ArrowLeft, CreditCard, Wallet, Gift, ShieldCheck, Check } from 'lucide-react';
-import { usePaystackPayment } from 'react-paystack';
-import { AuthContext } from '../contexts/AuthContext';
-import { useLocation } from 'wouter';
 
 export default function CheckoutPage() {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('paystack');
-  const [loading, setLoading] = useState(false);
-  const { user } = useContext(AuthContext);
-  const [, setLocation] = useLocation();
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('wallet');
 
   const paymentMethods = [
-    { id: 'paystack', title: 'Paystack', icon: <CreditCard color="#4A90E2" size={24} />, description: 'Pay with card, bank, or mobile money' },
     { id: 'wallet', title: 'Wallet Balance', icon: <Wallet color="#4A90E2" size={24} />, balance: '$1,248.75' },
+    { id: 'card', title: 'Credit Card', icon: <CreditCard color="#4A90E2" size={24} />, lastDigits: '**** 4289' },
     { id: 'credits', title: 'AI Credits', icon: <Gift color="#4A90E2" size={24} />, balance: '1,250 credits' },
   ];
 
   const orderDetails = {
-    item: 'Pro Plan Subscription',
-    price: '₵40.00',
-    validity: '30 days',
-    description: 'Full access to all Pro features for 30 days',
+    item: 'Data Bundle - 5GB',
+    price: '$18.00',
+    validity: '15 days',
+    description: 'High-speed mobile data for 15 days',
   };
 
   const orderSummary = {
-    subtotal: '₵40.00',
-    tax: '₵2.40',
-    total: '₵42.40',
-  };
-
-  // Paystack configuration
-  const config = {
-    reference: (new Date()).getTime().toString(),
-    email: user?.email || 'user@example.com',
-    amount: 4240, // Amount in pesewas (₵42.40 = 4240 pesewas)
-    publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_b6ee01322eab1d6a01dbbe029c0e5eea4afd9a75',
-    currency: 'GHS',
-    metadata: {
-      custom_fields: [
-        {
-          display_name: "Plan",
-          variable_name: "plan",
-          value: "Pro Plan"
-        }
-      ]
-    }
-  };
-
-  const initializePayment = usePaystackPayment(config);
-
-  const onSuccess = (reference: any) => {
-    console.log('Payment successful!', reference);
-    setLocation('/payment-confirmed');
-  };
-
-  const onClose = () => {
-    console.log('Payment cancelled');
-    setLoading(false);
-  };
-
-  const handlePayment = () => {
-    if (selectedPaymentMethod === 'paystack') {
-      setLoading(true);
-      initializePayment({ onSuccess, onClose });
-    } else {
-      alert(`Payment with ${paymentMethods.find(m => m.id === selectedPaymentMethod)?.title} coming soon!`);
-    }
+    subtotal: '$18.00',
+    tax: '$1.08',
+    total: '$19.08',
   };
 
   return (
@@ -115,13 +71,12 @@ export default function CheckoutPage() {
               }`}
               type="button"
               onClick={() => setSelectedPaymentMethod(method.id)}
-              data-testid={`button-payment-${method.id}`}
             >
               <span className="mr-3">{method.icon}</span>
               <span className="flex-1">
                 <span className="text-gray-900 dark:text-gray-100 font-semibold block">{method.title}</span>
                 <span className="text-gray-600 dark:text-gray-400 text-sm block">
-                  {method.balance ? `Balance: ${method.balance}` : method.description || ''}
+                  {method.balance ? `Balance: ${method.balance}` : method.lastDigits}
                 </span>
               </span>
               {selectedPaymentMethod === method.id && (
@@ -144,16 +99,8 @@ export default function CheckoutPage() {
           </span>
         </div>
         {/* Confirm Button */}
-        <button 
-          className="mt-6 mb-8 bg-blue-600 rounded-2xl p-5 w-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" 
-          type="button"
-          onClick={handlePayment}
-          disabled={loading}
-          data-testid="button-confirm-payment"
-        >
-          <span className="text-white text-lg font-bold">
-            {loading ? 'Processing...' : 'Confirm Payment'}
-          </span>
+        <button className="mt-6 mb-8 bg-blue-600 rounded-2xl p-5 w-full flex items-center justify-center" type="button">
+          <span className="text-white text-lg font-bold">Confirm Payment</span>
         </button>
       </div>
     </div>

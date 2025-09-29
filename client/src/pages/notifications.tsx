@@ -22,7 +22,7 @@ export default function NotificationSettingsPage({ onBack }: { onBack?: () => vo
   };
 
   const requestBrowserPermissions = () => {
-    if (window.confirm('This feature requires browser permissions. Would you like to enable them?')) {
+    if (window.confirm('This feature requires mobile permissions. Would you like to enable them?')) {
       setBrowserPermissions(true);
     }
   };
@@ -77,19 +77,19 @@ export default function NotificationSettingsPage({ onBack }: { onBack?: () => vo
           </div>
         </div>
 
-        {/* Browser Permissions */}
+        {/* Mobile Permissions */}
   <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Browser Permissions</div>
+          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Mobile Permissions</div>
           <button
             className="flex flex-row items-center justify-between py-3 w-full"
             onClick={requestBrowserPermissions}
           >
             <div>
-              <div className="text-base text-gray-900 dark:text-gray-100">Browser Notifications</div>
+              <div className="text-base text-gray-900 dark:text-gray-100">Mobile Notifications</div>
               <div className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                 {browserPermissions
-                  ? 'Enabled - You will receive browser notifications'
-                  : 'Disabled - Enable to receive browser notifications'}
+                  ? 'Enabled - You will receive mobile notifications'
+                  : 'Disabled - Enable to receive mobile notifications'}
               </div>
             </div>
             <span className="flex flex-row items-center">
@@ -103,8 +103,8 @@ export default function NotificationSettingsPage({ onBack }: { onBack?: () => vo
             <span className="flex flex-row items-start">
               <Shield size={16} className="text-gray-400 mt-0.5 mr-2" />
               <span className="text-xs text-gray-600 dark:text-gray-400">
-                Browser permissions allow the app to send notifications even when the browser is closed. 
-                You can manage these permissions in your browser settings.
+                Mobile permissions allow the app to send notifications even when the mobile is closed. 
+                You can manage these permissions in your mobile settings.
               </span>
             </span>
           </div>

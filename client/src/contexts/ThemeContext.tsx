@@ -74,7 +74,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       updateTheme(theme);
     }
-  }, [theme, themeVariant]);
+  }, [theme]);
 
   useEffect(() => {
     localStorage.setItem('theme', theme);

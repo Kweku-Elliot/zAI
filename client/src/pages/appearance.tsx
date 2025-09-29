@@ -11,7 +11,7 @@ const themes = [
 
 const currencies = [
   { id: 'GHS', name: 'Cedis', symbol: 'GHS' },
-  { id: 'USD', name: 'Euro', symbol: '€' },
+  { id: 'USD', name: 'USD', symbol: '$' },
 ];
 
 export default function AppearanceSettingsPage({ onBack }: { onBack?: () => void }) {

@@ -1,7 +1,14 @@
 import React from 'react';
 import TopBar from '@/components/TopBar';
 import { ChevronRight, BarChart2, Zap, FileText, Mic, MessageCircle } from 'lucide-react';
-import { useCredits } from '../contexts/CreditsContext';
+
+const planLimits = {
+  name: 'Premium Plan',
+  messages: { used: 8500, limit: 10000 },
+  files: { used: 42, limit: 50 },
+  voice: { used: 120, limit: 200 },
+  tokens: { used: 180000, limit: 250000 },
+};
 
 const calculatePercentage = (used: number, limit: number) => {
   return Math.min(100, (used / limit) * 100);
@@ -14,37 +21,6 @@ const getProgressColor = (percentage: number) => {
 };
 
 export default function UsageAnalyticsSettingsPage({ onBack }: { onBack?: () => void }) {
-  const { currentCredits, planLimits, plan, getUsagePercentage } = useCredits();
-  
-  const planDisplayNames = {
-    free: 'Free Plan',
-    plus: 'Plus Plan',
-    pro: 'Pro Plan',
-    proplus: 'Pro+ Plan',
-  };
-
-  const getCurrentPlanName = () => planDisplayNames[plan as keyof typeof planDisplayNames] || 'Free Plan';
-  
-  const usageData = {
-    name: getCurrentPlanName(),
-    messages: { 
-      used: currentCredits.aiCredits, 
-      limit: planLimits.aiCredits === -1 ? Infinity : planLimits.aiCredits 
-    },
-    files: { 
-      used: currentCredits.fileUploads, 
-      limit: planLimits.fileUploads === -1 ? Infinity : planLimits.fileUploads 
-    },
-    voice: { 
-      used: currentCredits.voiceMinutes, 
-      limit: planLimits.voiceMinutes === -1 ? Infinity : planLimits.voiceMinutes 
-    },
-    api: { 
-      used: currentCredits.apiCalls, 
-      limit: planLimits.apiCalls === -1 ? Infinity : planLimits.apiCalls 
-    },
-  };
-
   return (
   <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 overflow-auto pt-[calc(3rem+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] dark:text-white">
       <TopBar title="Usage & Analytics" onBack={onBack} />
@@ -53,7 +29,7 @@ export default function UsageAnalyticsSettingsPage({ onBack }: { onBack?: () => 
         <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-6 shadow-sm">
           <div className="flex flex-row items-center justify-between mb-4">
             <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">Current Plan</span>
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-300">{usageData.name}</span>
+            <span className="text-lg font-bold text-blue-600 dark:text-blue-300">{planLimits.name}</span>
           </div>
           <button className="flex flex-row items-center justify-between bg-blue-50 dark:bg-blue-900 rounded-lg p-3 w-full">
             <span className="font-medium text-blue-700 dark:text-blue-300">Upgrade Plan</span>
@@ -72,13 +48,13 @@ export default function UsageAnalyticsSettingsPage({ onBack }: { onBack?: () => 
                 <span className="text-base text-gray-900 dark:text-gray-100">Messages</span>
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                {usageData.messages.used.toLocaleString()} / {usageData.messages.limit === Infinity ? '∞' : usageData.messages.limit.toLocaleString()}
+                {planLimits.messages.used.toLocaleString()} / {planLimits.messages.limit.toLocaleString()}
               </span>
             </div>
             <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
-                className={`h-full ${usageData.messages.limit === Infinity ? 'bg-green-500' : getProgressColor(calculatePercentage(usageData.messages.used, usageData.messages.limit))}`}
-                style={{ width: `${usageData.messages.limit === Infinity ? 0 : calculatePercentage(usageData.messages.used, usageData.messages.limit)}%` }}
+                className={`h-full ${getProgressColor(calculatePercentage(planLimits.messages.used, planLimits.messages.limit))}`}
+                style={{ width: `${calculatePercentage(planLimits.messages.used, planLimits.messages.limit)}%` }}
               />
             </div>
           </div>
@@ -89,14 +65,14 @@ export default function UsageAnalyticsSettingsPage({ onBack }: { onBack?: () => 
                 <FileText size={20} className="text-blue-500 mr-2" />
                 <span className="text-base text-gray-900">Files</span>
               </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {usageData.files.used} / {usageData.files.limit === Infinity ? '∞' : usageData.files.limit}
+              <span className="text-sm text-gray-500">
+                {planLimits.files.used} / {planLimits.files.limit}
               </span>
             </div>
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className={`h-full ${usageData.files.limit === Infinity ? 'bg-green-500' : getProgressColor(calculatePercentage(usageData.files.used, usageData.files.limit))}`}
-                style={{ width: `${usageData.files.limit === Infinity ? 0 : calculatePercentage(usageData.files.used, usageData.files.limit)}%` }}
+                className={`h-full ${getProgressColor(calculatePercentage(planLimits.files.used, planLimits.files.limit))}`}
+                style={{ width: `${calculatePercentage(planLimits.files.used, planLimits.files.limit)}%` }}
               />
             </div>
           </div>
@@ -107,32 +83,32 @@ export default function UsageAnalyticsSettingsPage({ onBack }: { onBack?: () => 
                 <Mic size={20} className="text-blue-500 mr-2" />
                 <span className="text-base text-gray-900">Voice Minutes</span>
               </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {usageData.voice.used} / {usageData.voice.limit === Infinity ? '∞' : usageData.voice.limit}
+              <span className="text-sm text-gray-500">
+                {planLimits.voice.used} / {planLimits.voice.limit}
               </span>
             </div>
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className={`h-full ${usageData.voice.limit === Infinity ? 'bg-green-500' : getProgressColor(calculatePercentage(usageData.voice.used, usageData.voice.limit))}`}
-                style={{ width: `${usageData.voice.limit === Infinity ? 0 : calculatePercentage(usageData.voice.used, usageData.voice.limit)}%` }}
+                className={`h-full ${getProgressColor(calculatePercentage(planLimits.voice.used, planLimits.voice.limit))}`}
+                style={{ width: `${calculatePercentage(planLimits.voice.used, planLimits.voice.limit)}%` }}
               />
             </div>
           </div>
-          {/* API Calls */}
+          {/* Tokens */}
           <div>
             <div className="flex flex-row items-center justify-between mb-2">
               <span className="flex flex-row items-center">
-                <Zap size={20} className="text-blue-500 dark:text-blue-300 mr-2" />
-                <span className="text-base text-gray-900 dark:text-gray-100">API Calls</span>
+                <Zap size={20} className="text-blue-500 mr-2" />
+                <span className="text-base text-gray-900">AI Tokens</span>
               </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {usageData.api.used.toLocaleString()} / {usageData.api.limit === Infinity ? '∞' : usageData.api.limit.toLocaleString()}
+              <span className="text-sm text-gray-500">
+                {planLimits.tokens.used.toLocaleString()} / {planLimits.tokens.limit.toLocaleString()}
               </span>
             </div>
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className={`h-full ${usageData.api.limit === Infinity ? 'bg-green-500' : getProgressColor(calculatePercentage(usageData.api.used, usageData.api.limit))}`}
-                style={{ width: `${usageData.api.limit === Infinity ? 0 : calculatePercentage(usageData.api.used, usageData.api.limit)}%` }}
+                className={`h-full ${getProgressColor(calculatePercentage(planLimits.tokens.used, planLimits.tokens.limit))}`}
+                style={{ width: `${calculatePercentage(planLimits.tokens.used, planLimits.tokens.limit)}%` }}
               />
             </div>
           </div>
