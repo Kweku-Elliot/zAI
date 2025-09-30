@@ -33,8 +33,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single();
       if (!error) setProfile(data);
-  } catch (_e) {
-      // ignore
+  } catch (err) {
+      void err; // ignore error
     }
   };
 

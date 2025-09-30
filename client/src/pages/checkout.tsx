@@ -2,6 +2,16 @@
 import React, { useState } from 'react';
 import { ArrowLeft, CreditCard, Wallet, Gift, ShieldCheck, Check } from 'lucide-react';
 
+// Read selected plan from localStorage
+const getSelectedPlan = () => {
+  try {
+    const plan = localStorage.getItem('selectedBillingPlan');
+    return plan ? JSON.parse(plan) : null;
+  } catch {
+    return null;
+  }
+};
+
 export default function CheckoutPage() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('wallet');
 
@@ -11,18 +21,35 @@ export default function CheckoutPage() {
     { id: 'credits', title: 'AI Credits', icon: <Gift color="#4A90E2" size={24} />, balance: '1,250 credits' },
   ];
 
-  const orderDetails = {
-    item: 'Data Bundle - 5GB',
-    price: '$18.00',
-    validity: '15 days',
-    description: 'High-speed mobile data for 15 days',
-  };
+  // Use selected plan from billing
+  const selectedPlan = getSelectedPlan();
 
-  const orderSummary = {
-    subtotal: '$18.00',
-    tax: '$1.08',
-    total: '$19.08',
-  };
+  // Fallback order details if no plan selected
+  const orderDetails = selectedPlan
+    ? {
+        item: selectedPlan.name,
+        price: selectedPlan.price,
+        validity: selectedPlan.period,
+        description: selectedPlan.features[0] || '',
+      }
+    : {
+        item: 'Data Bundle - 5GB',
+        price: '$18.00',
+        validity: '15 days',
+        description: 'High-speed mobile data for 15 days',
+      };
+
+  const orderSummary = selectedPlan
+    ? {
+        subtotal: selectedPlan.price,
+        tax: '₵0.00',
+        total: selectedPlan.price,
+      }
+    : {
+        subtotal: '$18.00',
+        tax: '$1.08',
+        total: '$19.08',
+      };
 
   return (
   <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col pb-[env(safe-area-inset-bottom)] dark:text-white">
@@ -99,7 +126,15 @@ export default function CheckoutPage() {
           </span>
         </div>
         {/* Confirm Button */}
-        <button className="mt-6 mb-8 bg-blue-600 rounded-2xl p-5 w-full flex items-center justify-center" type="button">
+        <button
+          className="mt-6 mb-8 bg-blue-600 rounded-2xl p-5 w-full flex items-center justify-center"
+          type="button"
+          onClick={() => {
+            // TODO: Integrate Paystack payment here using public key
+            // On success, redirect to payment-confirmed page
+            window.location.assign('/payment-confirmed');
+          }}
+        >
           <span className="text-white text-lg font-bold">Confirm Payment</span>
         </button>
       </div>

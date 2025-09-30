@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, Calendar, Download, Crown, Check, X, ChevronRight, Lock, Info } from 'lucide-react';
+import { CreditCard, Download, Check, X, Lock } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 
 export default function BillingPage() {
@@ -7,7 +7,7 @@ export default function BillingPage() {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'plus' | 'pro' | 'proplus'>('plus');
   const [_showPaymentFlow, _setShowPaymentFlow] = useState(false);
 
-  const usageData = {
+  const _usageData = {
     messages: { used: 850, limit: 1000 },
     files: { used: 12, limit: 20 },
     voice: { used: 45, limit: 60 },
@@ -18,84 +18,86 @@ export default function BillingPage() {
   const plans = [
     {
       id: 'free',
-      name: 'Free Plan',
-      price: billingCycle === 'monthly' ? '₵0' : '₵0',
-      period: billingCycle === 'monthly' ? '/month' : '/year',
+      name: 'Free (₵0)',
+      price: '₵0',
+      period: '/month',
       features: [
-        '50 messages/month',
-        '2 file uploads',
-        'Basic AI access',
-        'Community support',
+        'AI Chat – Fast: 20 / day',
+        'AI Chat – Heavy: Coming Soon',
+        'AI Chat – Auto: Coming Soon',
+        'CodeZ (Code Exec.): 10 / day',
+        'Image Generation: None',
+        'File Uploads: 20MB / day',
+        'Cloud Storage: 50MB',
+        'Video Generation: Coming Soon',
+        'Voice Chat: Coming Soon',
+        'Daily Reset',
       ],
-      limitations: [
-        'Resets monthly',
-        '2 uploads max',
-        'No voice',
-        'No API',
-        'Support only via forum',
-      ],
+      limitations: [],
       color: 'gray',
       gradient: ['#9CA3AF', '#6B7280'],
       current: selectedPlan === 'free',
     },
     {
       id: 'plus',
-      name: 'Plus Plan',
-      price: billingCycle === 'monthly' ? '₵20' : '₵216',
-      period: billingCycle === 'monthly' ? '/month' : '/year',
+      name: 'Student (₵25)',
+      price: '₵25',
+      period: '/month',
       features: [
-        'Unlimited messages',
-        '10 file uploads/month',
-        'Voice chat (60 min)',
-        'Advanced AI',
-        'Email support',
+        'AI Chat – Fast: 100 / day',
+        'AI Chat – Heavy: Coming Soon',
+        'AI Chat – Auto: Coming Soon',
+        'CodeZ (Code Exec.): 40 / day',
+        'Image Generation: 20 / day',
+        'File Uploads: 100MB / day',
+        'Cloud Storage: 500MB',
+        'Video Generation: Coming Soon',
+        'Voice Chat: Coming Soon',
+        'Daily Reset',
       ],
-      limitations: [
-        'Voice minutes tracked',
-        'File upload counter',
-        'Advanced models unlocked',
-        'Priority queue',
-      ],
+      limitations: [],
       color: 'blue',
       gradient: ['#3B82F6', '#60A5FA'],
       current: selectedPlan === 'plus',
     },
     {
       id: 'pro',
-      name: 'Pro Plan',
-      price: billingCycle === 'monthly' ? '₵40' : '₵432',
-      period: billingCycle === 'monthly' ? '/month' : '/year',
+      name: 'Pro (₵70)',
+      price: '₵70',
+      period: '/month',
       features: [
-        'Unlimited messages',
-        '50 file uploads/month',
-        'Voice chat (180 min)',
-        'Premium AI',
-        'Priority support',
-        'API access',
+        'AI Chat – Fast: 400 / day',
+        'AI Chat – Heavy: Coming Soon',
+        'AI Chat – Auto: Coming Soon',
+        'CodeZ (Code Exec.): 150 / day',
+        'Image Generation: 80 / day',
+        'File Uploads: 500MB / day',
+        'Cloud Storage: 2GB',
+        'Video Generation: Coming Soon',
+        'Voice Chat: Coming Soon',
+        'Daily Reset',
       ],
-      limitations: [
-        'Voice minutes tracked',
-        'File upload counter',
-        'Premium models unlocked',
-        'Priority queue',
-      ],
+      limitations: [],
       color: 'purple',
       gradient: ['#8B5CF6', '#A78BFA'],
       current: selectedPlan === 'pro',
     },
     {
       id: 'proplus',
-      name: 'Pro+ Plan',
-      price: billingCycle === 'monthly' ? '₵120' : '₵1296',
-      period: billingCycle === 'monthly' ? '/month' : '/year',
+      name: 'Pro+ (₵130)',
+      price: '₵130',
+      period: '/month',
       features: [
-        'Unlimited everything',
-        'Unlimited file uploads',
-        'Unlimited voice chat',
-        'Ultimate AI',
-        'Dedicated support',
-        'API access',
-        'Early access to new features',
+        'AI Chat – Fast: 1,200 / day',
+        'AI Chat – Heavy: Coming Soon',
+        'AI Chat – Auto: Coming Soon',
+        'CodeZ (Code Exec.): 400 / day',
+        'Image Generation: 200 / day',
+        'File Uploads: 2GB / day',
+        'Cloud Storage: 5GB',
+        'Video Generation: Coming Soon',
+        'Voice Chat: Coming Soon',
+        'Daily Reset',
       ],
       limitations: [],
       color: 'red',
@@ -104,11 +106,7 @@ export default function BillingPage() {
     },
   ];
 
-  const billingHistory = [
-    { id: 1, plan: 'Pro Plan', amount: '₵50.00', cycle: 'Monthly', method: 'Paystck', status: 'Paid', date: '2023-09-15', invoice: '#' },
-    { id: 2, plan: 'Pro Plan', amount: '₵50.00', cycle: 'Monthly', method: 'Paystack', status: 'Paid', date: '2023-08-15', invoice: '#' },
-    { id: 3, plan: 'Plus Plan', amount: '₵20.00', cycle: 'Monthly', method: 'Paystack', status: 'Paid', date: '2023-07-15', invoice: '#' },
-  ];
+  // Billing history will be loaded from live data in production
   
 
   function renderPlanCard(plan: typeof plans[0]) {
@@ -125,7 +123,7 @@ export default function BillingPage() {
           className="p-6"
           style={{
             backgroundImage: `linear-gradient(135deg, ${plan.gradient[0]}, ${plan.gradient[1]})`,
-            backgroundColor: plan.gradient[0], // fallback if gradient not rendered
+            backgroundColor: plan.gradient[0],
           }}
         >
           <div className="flex justify-between items-start">
@@ -144,10 +142,16 @@ export default function BillingPage() {
           </div>
           <div className="mt-6">
             {plan.features.map((feature, index) => (
-              <div key={index} className="flex items-center mt-2">
-                <Check size={16} color="white" />
-                <span className={`${textClass} ml-2`}>{feature}</span>
-              </div>
+              feature === 'Daily Reset' ? (
+                <div key={index} className="flex items-center mt-2">
+                  <Check size={16} color="white" />
+                  <span className={`${textClass} ml-2`}>{feature}</span>
+                </div>
+              ) : (
+                <div key={index} className="flex items-center mt-2">
+                  <span className={`${textClass}`}>{feature}</span>
+                </div>
+              )
             ))}
           </div>
           {plan.limitations.length > 0 && (
@@ -216,13 +220,13 @@ export default function BillingPage() {
               <span className="text-green-700 text-xs font-medium">Primary</span>
             </span>
           </div>
-                    <div className="flex items-center mt-4">
+           <div className="flex items-center mt-4">
             <span className="bg-gray-100 p-3 rounded-lg">
-              <span className="font-medium">MOMO</span>
+              <span className="font-medium">Binance Pay</span>
             </span>
             <span className="ml-3">
-              <span className="font-medium">MTN</span>
-              <span className="text-gray-500 text-sm block">coming soon</span>
+              <span className="font-medium">Crypto/Fiat</span>
+              <span className="text-gray-500 text-sm block">USDC/USDT/BTC</span>
             </span>
             <span className="ml-auto bg-green-100 px-2 py-1 rounded-full">
               <span className="text-green-700 text-xs font-medium">#</span>
@@ -241,37 +245,22 @@ export default function BillingPage() {
             </span>
           </div>
         </div>
-        {/* Billing History */}
-        <span className="text-lg font-bold text-gray-900 mb-4 block">Billing History</span>
-        {billingHistory.map((item) => (
-          <div key={item.id} className="bg-white rounded-2xl p-4 mb-4">
-            <div className="flex justify-between">
-              <span>
-                <span className="font-medium text-gray-900 block">{item.plan}</span>
-                <span className="text-gray-500 text-sm block">{item.date}</span>
-              </span>
-              <span className="items-end">
-                <span className="font-medium text-gray-900 block">{item.amount}</span>
-                <span className="flex items-center mt-1">
-                  <span className="text-gray-500 text-sm mr-1">{item.method}</span>
-                  <Lock size={12} color="#6B7280" />
-                </span>
-              </span>
-            </div>
-            <div className="flex justify-between mt-3">
-              <span className="flex items-center">
-                <span className="bg-green-100 p-1 rounded-full">
-                  <Check size={12} color="#059669" />
-                </span>
-                <span className="text-green-700 text-sm ml-1">{item.status}</span>
-              </span>
-              <button className="flex items-center" type="button">
-                <Download size={16} color="#3B82F6" />
-                <span className="text-blue-500 text-sm ml-1">Invoice</span>
-              </button>
-            </div>
-          </div>
-        ))}
+        {/* Billing History (live data only) */}
+        {/* Confirm & Checkout Button */}
+        <button
+          className="mt-8 mb-8 bg-blue-600 rounded-2xl p-5 w-full flex items-center justify-center"
+          type="button"
+          onClick={() => {
+            // Store selected plan in localStorage for checkout page
+            const plan = plans.find(p => p.id === selectedPlan);
+            if (plan) {
+              localStorage.setItem('selectedBillingPlan', JSON.stringify(plan));
+            }
+            window.location.assign('/checkout');
+          }}
+        >
+          <span className="text-white text-lg font-bold">Confirm & Checkout</span>
+        </button>
       </div>
     </div>
   );

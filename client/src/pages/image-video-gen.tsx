@@ -30,48 +30,6 @@ type GeneratedContent = {
   isLiked: boolean;
 };
 
-const mockGeneratedContent: GeneratedContent[] = [
-  {
-    id: '1',
-    type: 'image',
-    title: 'Abstract Art',
-    description: 'Generated with prompt: "Abstract art with vibrant colors"',
-    likes: 24,
-    downloads: 12,
-    image: 'https://images.unsplash.com/photo-1694903110330-cc64b7e1d21d?w=900&auto=format&fit=crop&q=60',
-    isLiked: false,
-  },
-  {
-    id: '2',
-    type: 'video',
-    title: 'Cyberpunk Scene',
-    description: 'Generated with prompt: "Futuristic cyberpunk city"',
-    likes: 42,
-    downloads: 31,
-    image: 'https://plus.unsplash.com/premium_photo-1700769221371-e6fbd55753ee?w=900&auto=format&fit=crop&q=60',
-    isLiked: true,
-  },
-  {
-    id: '3',
-    type: 'image',
-    title: 'Minimalist Design',
-    description: 'Generated with prompt: "Clean, minimalist graphic design"',
-    likes: 18,
-    downloads: 9,
-    image: 'https://images.unsplash.com/photo-1544654423372-91c3d0dade3b?w=900&auto=format&fit=crop&q=60',
-    isLiked: false,
-  },
-  {
-    id: '4',
-    type: 'image',
-    title: 'Digital Art',
-    description: 'Generated with prompt: "Digital art with geometric shapes"',
-    likes: 35,
-    downloads: 22,
-    image: 'https://images.unsplash.com/photo-1729179666011-38d13280b92f?w=900&auto=format&fit=crop&q=60',
-    isLiked: false,
-  },
-];
 
 const mockPrompts = [
   'Abstract art with vibrant colors',
@@ -85,7 +43,7 @@ export default function ImageVideoGenPage() {
   const [activeTab, setActiveTab] = useState<'images' | 'videos'>('images');
   const [searchQuery, setSearchQuery] = useState('');
   const [prompt, setPrompt] = useState('');
-  const [generatedContent, setGeneratedContent] = useState(mockGeneratedContent);
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent[]>([]);
   const [recentPrompts] = useState(mockPrompts);
   const [showPromptInput, setShowPromptInput] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<{id: string, uri: string, type: 'image' | 'video'} | null>(null);
@@ -101,19 +59,47 @@ export default function ImageVideoGenPage() {
 
   const generateContent = () => {
     if (!prompt.trim()) return;
-    const newContent: GeneratedContent = {
-      id: `${generatedContent.length + 1}`,
-      type: activeTab === 'images' ? 'image' : 'video',
-      title: prompt.substring(0, 20) + (prompt.length > 20 ? '...' : ''),
-      description: `Generated with prompt: "${prompt}"`,
-      likes: 0,
-      downloads: 0,
-      image: 'https://images.unsplash.com/photo-1694903110330-cc64b7e1d21d?w=900&auto=format&fit=crop&q=60',
-      isLiked: false,
-    };
-    setGeneratedContent([newContent, ...generatedContent]);
-    setPrompt('');
-    setShowPromptInput(false);
+    (async () => {
+      try {
+        // Only support image generation for now
+        if (activeTab !== 'images') return;
+        const user_id = 'anonymous';
+        const conversation_id = `img-gen-${Date.now()}`;
+        const res = await fetch('/z1/image-gen', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt,
+            user_id,
+            conversation_id,
+            model: 'zenux-z0-zeni',
+            stream: false
+          })
+        });
+        if (!res.ok) {
+          alert('Image generation failed.');
+          return;
+        }
+        const result = await res.json();
+        // Expect result to have an image URL or similar
+        const imageUrl = result?.image_url || result?.url || result?.image || result?.images?.[0] || '';
+        const newContent: GeneratedContent = {
+          id: `${generatedContent.length + 1}`,
+          type: 'image',
+          title: prompt.substring(0, 20) + (prompt.length > 20 ? '...' : ''),
+          description: `Generated with prompt: "${prompt}"`,
+          likes: 0,
+          downloads: 0,
+          image: imageUrl || 'https://images.unsplash.com/photo-1694903110330-cc64b7e1d21d?w=900&auto=format&fit=crop&q=60',
+          isLiked: false,
+        };
+        setGeneratedContent([newContent, ...generatedContent]);
+        setPrompt('');
+        setShowPromptInput(false);
+      } catch {
+        alert('Image generation failed.');
+      }
+    })();
   };
 
   const filteredContent = generatedContent.filter(item =>

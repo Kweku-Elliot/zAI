@@ -35,6 +35,8 @@ interface TranscriptionResult {
 class ZenuxAIService {
   async generateChatResponse(message: string): Promise<ChatResponse> {
     try {
+      console.log('[ZenuxAI] Sending chat request:', { message });
+      
       const response = await axios.post(
         ZENUX_CHAT_API_URL!,
         {
@@ -58,16 +60,27 @@ class ZenuxAIService {
           },
         }
       );
-      return {
-        content:
-          response.data.choices?.[0]?.message?.content ||
-          "I apologize, but I couldn't generate a response. Please try again.",
+
+      console.log('[ZenuxAI] Raw response:', JSON.stringify(response.data, null, 2));
+      
+      const content = response.data.choices?.[0]?.message?.content;
+      console.log('[ZenuxAI] Extracted content:', content);
+      
+      if (!content) {
+        console.warn('[ZenuxAI] No content found in response');
+      }
+
+      const result = {
+        content: content || "I apologize, but I couldn't generate a response. Please try again.",
         metadata: {
           model: "zenux-0",
           tokens: response.data.usage?.total_tokens || 0,
           timestamp: new Date().toISOString(),
         },
       };
+
+      console.log('[ZenuxAI] Sending response:', result);
+      return result;
     } catch (error: any) {
       console.error("Zenux chat error:", error);
       throw new Error("Failed to generate AI response: " + error.message);
@@ -274,28 +287,88 @@ export const zenuxAIService = new ZenuxAIService();
 // --- Enhanced v2 ZenuxAIService ---
 
 class ZenuxAIV2Service {
-  async chat({ message, user_id, conversation_id, files, stream = false }: {
-    message: string;
+  async generateImageFromPrompt({ messages, user_id, conversation_id, model, stream }: {
+    messages: { role: string; content: string }[];
+    user_id: string;
+    conversation_id?: string;
+    model?: string;
+    stream?: boolean;
+  }): Promise<any> {
+    const url = process.env.VITE_ZENUX_CHAT_API_URL || 'http://localhost:5000/z1/chat/completions';
+    const apiKey = process.env.VITE_ZENUX_API_KEY;
+    const payload = {
+      messages,
+      user_id,
+      conversation_id,
+      model: model || 'zenux-z0-zeni',
+      stream: !!stream
+    };
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+    const response = await (await import('axios')).default.post(url, payload, { headers });
+    return response.data;
+  }
+  async codezCodeExecution({ code, language, user_id, conversation_id }: {
+    code: string;
+    language: string;
+    user_id: string;
+    conversation_id?: string;
+  }): Promise<any> {
+    const CODEZ_API_URL = process.env.VITE_CODEZ_API_URL || 'http://localhost:5000/z0/codez';
+    const CODEZ_API_KEY = process.env.VITE_CODEZ_API_KEY;
+    const payload = { code, language, user_id, conversation_id };
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (CODEZ_API_KEY) headers['Authorization'] = `Bearer ${CODEZ_API_KEY}`;
+  const response = await (await import('axios')).default.post(CODEZ_API_URL, payload, { headers });
+    return response.data;
+  }
+  async uploadFile(file: Express.Multer.File, user_id: string): Promise<any> {
+    const formData = new FormData();
+    formData.append("file", file.buffer, {
+      filename: file.originalname,
+      contentType: file.mimetype
+    });
+    formData.append("user_id", user_id);
+
+    const response = await axios.post(
+      ZENUX_FILE_API_URL!,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${ZENUX_API_KEY}`,
+          ...formData.getHeaders()
+        }
+      }
+    );
+
+    return response.data;
+  }
+
+  async chat({ messages, user_id, conversation_id, files, stream = false, mode = 'auto' }: {
+    messages: any[];
     user_id: string;
     conversation_id: string;
     files?: string[];
     stream?: boolean;
+    mode?: 'fast' | 'heavy' | 'auto';
   }): Promise<any> {
-    // Send request in OpenAI format
+    // Select model based on mode
+    let model = 'zenux-1o-alpha';
+    if (mode === 'fast') model = 'zenux-1o-fast';
+    else if (mode === 'heavy') model = 'zenux-1o-heavy';
+    // Send request in OpenAI format with files support
     const payload: any = {
-      messages: [
-        { role: 'user', content: message }
-      ],
+      messages,
       user_id,
       conversation_id,
       enhanced: true,
       enhanced_v2: true,
-      model: 'zenux-1o-alpha',
+      model,
       stream,
       temperature: 0.7,
       max_tokens: 1000
     };
-    if (files) payload.files = files;
+    if (files && files.length > 0) payload.files = files;
     const response = await axios.post(
       ZENUX_CHAT_API_URL!,
       payload,

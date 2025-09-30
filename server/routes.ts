@@ -1,3 +1,4 @@
+  
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer } from "ws";
@@ -9,16 +10,102 @@ import { zenuxAIV2Service } from "./services/zenux"; // Import ZenuxAIV2Service
 import { insertMessageSchema, insertChatSchema, insertTransactionSchema, insertUserSchema } from "@shared/schema";
 import multer from "multer";
 
-// Configure multer for file uploads
+// Configure multer for file uploads with memory storage
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
+// Helper function to convert file to text if needed
+async function convertToTextIfNeeded(file: Express.Multer.File): Promise<Buffer> {
+  const mimeType = file.mimetype;
+  const ext = file.originalname.toLowerCase().split('.').pop() || '';
+
+  // Don't convert images
+  if (mimeType.startsWith('image/')) {
+    return file.buffer;
+  }
+
+  // For documents, attempt to extract text
+  const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'csv', 'xls', 'xlsx'];
+  if (documentTypes.includes(ext)) {
+    try {
+      // For simple text files, convert directly
+      if (ext === 'txt' || ext === 'csv') {
+        return Buffer.from(file.buffer.toString('utf-8'));
+      }
+      
+      // For other document types, we'd use appropriate libraries
+      // TODO: Add PDF.js, docx, xlsx parsing etc.
+      console.log(`Document type ${ext} detected, using raw buffer for now`);
+      return file.buffer;
+    } catch (error) {
+      console.error(`Error converting ${ext} file to text:`, error);
+      return file.buffer;
+    }
+  }
+
+  // Return original buffer for unsupported types
+  return file.buffer;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // CodeZ code execution endpoint
+    app.post('/z0/codez', async (req, res) => {
+      // Forward code execution request to CodeZ backend securely
+      try {
+        const { code, language, user_id, conversation_id } = req.body;
+  // Use ZenuxAIV2Service to forward request
+  const result = await zenuxAIV2Service.codezCodeExecution({ code, language, user_id, conversation_id });
+  res.json(result);
+      } catch (err: any) {
+        res.status(500).json({ error: err.message || 'Code execution failed.' });
+      }
+    });
+  // File upload endpoint
+  app.post("/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      const convertedBuffer = await convertToTextIfNeeded(req.file);
+      const convertedFile = {
+        ...req.file,
+        buffer: convertedBuffer
+      };
+
+      const result = await zenuxAIV2Service.uploadFile(convertedFile, req.body.user_id);
+      res.json(result);
+    } catch (error: any) {
+      console.error("File upload error:", error);
+      res.status(500).json({ message: "Failed to upload file: " + error.message });
+    }
+  });
   // Test route
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // Image generation endpoint
+  app.post('/z1/image-gen', async (req, res) => {
+    try {
+      const { prompt, user_id, conversation_id, model = 'zenux-z0-zeni', stream = false } = req.body;
+      // Compose OpenAI-style payload
+      const payload = {
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+        user_id,
+        conversation_id,
+        model,
+        stream
+      };
+      const result = await zenuxAIV2Service.generateImageFromPrompt(payload);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Image generation failed.' });
+    }
   });
 
   // User routes
@@ -108,20 +195,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI chat route (enhanced v2 streaming)
   app.post("/api/ai/chat", async (req, res) => {
     try {
-      // DEBUG: log incoming AI chat request for diagnostics
+      // Debug: log incoming headers and body for every request
+      console.log('--- /api/ai/chat DEBUG ---');
+      console.log('Headers:', req.headers);
+      console.log('Body:', JSON.stringify(req.body, null, 2));
+      // Detailed logging of the incoming request
+      console.log('\n=== CHAT REQUEST ===');
+      console.log('Headers:', {
+        'content-type': req.headers['content-type'],
+        'authorization': req.headers.authorization ? 'Bearer [present]' : 'none',
+      });
       try {
-        console.log('[/api/ai/chat] incoming body:', JSON.stringify(req.body));
-      } catch (_err) {
-        // reference the caught error to satisfy linters
-        void _err;
-        console.log('[/api/ai/chat] incoming body (non-serializable)');
+        console.log('Body:', JSON.stringify(req.body, null, 2));
+      } catch (err) {
+        void err;
+        console.log('Body: [non-serializable]');
+        console.log('Raw body:', req.body);
       }
-      console.log('[/api/ai/chat] Authorization header present:', !!(req.headers.authorization || req.headers.Authorization));
+      // Log authentication status (presence only; actual token is handled below)
+      const hasAuthHeader = !!(req.headers.authorization || req.headers.Authorization);
+      console.log('Auth status:', { hasAuth: hasAuthHeader });
 
-      const { message, conversation_id, conversationId, chatId, user_id, userId } = req.body;
+      const { messages, conversation_id, conversationId, chatId, user_id: _user_id, userId: _userId, mode, files } = req.body;
 
-      if (!message) {
-        return res.status(400).json({ message: "Message is required" });
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+        return res.status(400).json({ message: "Messages array is required" });
       }
 
       // accept either conversation_id or conversationId or chatId
@@ -151,28 +249,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Use ZenuxAIV2Service for chat (streaming)
       const aiResponse = await zenuxAIV2Service.chat({
-        message,
+        messages,
         user_id: uid,
         conversation_id: convId,
+        mode: mode || 'auto',
+        files,
         stream: true
       });
 
       // If response is a readable stream, pipe as SSE
       if (aiResponse && aiResponse.readable) {
+        console.log('Setting up SSE stream response');
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
+        
         aiResponse.on('data', (chunk: any) => {
-          res.write(`data: ${chunk.toString()}\n\n`);
+          const chunkStr = chunk.toString();
+          console.log('Stream chunk:', chunkStr);
+
+          // If upstream already sends SSE formatted lines (starts with 'data:' or 'event:'),
+          // forward them as-is to avoid double-prefixing 'data: '. Otherwise, prefix with 'data:'
+          const trimmed = chunkStr.trimStart();
+          if (trimmed.startsWith('data:') || trimmed.startsWith('event:')) {
+            // Ensure there's a terminating blank line for SSE
+            try {
+              // If chunk already ends with two newlines, write as-is; otherwise append one blank line
+              if (/\n\s*\n$/.test(chunkStr)) {
+                res.write(chunkStr);
+              } else {
+                res.write(chunkStr + '\n\n');
+              }
+            } catch (_err) { void _err; }
+          } else {
+            // Normal JSON or raw chunk: prefix with 'data:' for SSE consumers
+            try {
+              res.write(`data: ${chunkStr}\n\n`);
+            } catch (_err) { void _err; }
+          }
         });
+        
         aiResponse.on('end', () => {
+          console.log('Stream ended successfully');
           res.end();
         });
+        
         aiResponse.on('error', (error: any) => {
           console.error('Zenux chat stream error:', error);
           try {
-            res.write(`data: {"error": "Failed to stream AI response: ${error.message}"}\n\n`);
-          } catch (_err) { void _err; }
+            const errorMsg = `data: {"error": "Failed to stream AI response: ${error.message}"}\n\n`;
+            console.log('Sending error message:', errorMsg);
+            res.write(errorMsg);
+          } catch (_err) { 
+            console.error('Failed to send error message:', _err);
+          }
           res.end();
         });
       } else {

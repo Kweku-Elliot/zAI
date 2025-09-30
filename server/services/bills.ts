@@ -161,7 +161,7 @@ class BillsService {
   ): Promise<BillPaymentResponse> {
     
     // Simulate MTN MoMo API call
-    const requestBody = {
+    const _requestBody = {
       amount: request.amount,
       currency: request.currency,
       externalId: transactionId,
@@ -230,17 +230,17 @@ class BillsService {
   }
 
   private async getUserBalance(userId: string): Promise<number> {
-    // Get user wallet balance from storage
-    const user = await storage.getUser(userId);
-    return user?.walletBalance || 0;
+  // Get user wallet balance from storage (use any to avoid strict typing issues)
+  const user = await (storage as any).getUser(userId);
+  return (user as any)?.walletBalance || 0;
   }
 
   private async deductFromWallet(userId: string, amount: number): Promise<void> {
     // Deduct amount from user wallet
-    const user = await storage.getUser(userId);
+    const user = await (storage as any).getUser(userId);
     if (user) {
-      const newBalance = (user.walletBalance || 0) - amount;
-      await storage.updateUser(userId, { walletBalance: newBalance });
+      const newBalance = ((user as any).walletBalance || 0) - amount;
+      await (storage as any).updateUser(userId, { walletBalance: newBalance } as any);
     }
   }
 
@@ -263,8 +263,8 @@ class BillsService {
       timestamp: new Date().toISOString()
     };
 
-    // Save transaction record
-    await storage.saveTransaction(transaction);
+  // Save transaction record
+  await (storage as any).saveTransaction(transaction);
   }
 
   private async sendPaymentConfirmation(
@@ -286,7 +286,7 @@ class BillsService {
   async getBillsHistory(userId: string, limit: number = 50): Promise<any[]> {
     try {
       // Get user's bill payment history
-      const transactions = await storage.getUserTransactions(userId, 'bill_payment', limit);
+  const transactions = await (storage as any).getUserTransactions(userId, 'bill_payment', limit);
       return transactions || [];
     } catch (error: any) {
       console.error('Error fetching bills history:', error);

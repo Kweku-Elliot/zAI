@@ -11,26 +11,26 @@ const CodeExecutionScreen = () => {
   const [isLanguageSelectorOpen, setIsLanguageSelectorOpen] = useState(false);
 
   const languages = [
-    { id: 'python', name: 'Python', color: 'bg-yellow-500' },
-    { id: 'javascript', name: 'JavaScript', color: 'bg-yellow-600' },
-    { id: 'sql', name: 'SQL', color: 'bg-blue-500' },
-    { id: 'java', name: 'Java', color: 'bg-red-500' },
-    { id: 'cpp', name: 'C++', color: 'bg-blue-700' },
-    { id: 'react', name: 'React', color: 'bg-cyan-500' },
+  { id: 'python', name: 'Python', color: 'bg-yellow-500' },
+  { id: 'javascript', name: 'JavaScript', color: 'bg-yellow-600' },
+  { id: 'bash', name: 'Bash', color: 'bg-gray-700' },
+  { id: 'sql', name: 'SQL', color: 'bg-blue-500' },
+  { id: 'java', name: 'Java', color: 'bg-red-500' },
   ];
 
   const runCode = () => {
-    // Send the code to the AI assistant to get execution explanation or simulated output
+    // Send the code to the CodeZ backend for execution
     (async () => {
+      setOutput('Running...');
       try {
         const conversationId = `code-exec-${Date.now()}`;
         const payload = {
-          message: `Execute or explain this ${selectedLanguage} code:\n\n${code}`,
-          conversation_id: conversationId,
+          code,
+          language: selectedLanguage,
           user_id: (user as any)?.id || 'anonymous',
-          enhanced: true,
-          enhanced_v2: true,
+          conversation_id: conversationId,
         };
+        console.log('[CodeZ Client] Outgoing payload:', payload);
 
         // Attach access token if available
         const { data: sessionData } = await (await import('@/lib/supabase')).supabase.auth.getSession();
@@ -38,20 +38,39 @@ const CodeExecutionScreen = () => {
         const headers: Record<string,string> = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const res = await fetch('/api/ai/chat', {
+        const res = await fetch('/z0/codez', {
           method: 'POST',
           headers,
           body: JSON.stringify(payload),
         });
 
         if (!res.ok) {
-          setOutput('AI execution service failed. Showing local simulated output.');
+          const errorText = await res.text();
+          console.error('[CodeZ Client] Error response:', errorText);
+          setOutput('CodeZ execution service failed.');
           return;
         }
 
-        const text = await res.text();
-        setOutput(text || 'No output from AI');
-      } catch (err) { void err; setOutput('Failed to contact AI service. Showing simulated output.'); }
+        const result = await res.json();
+        console.log('[CodeZ Client] Response:', result);
+        // Handle AI response structure
+        if (result.result) {
+          const r = result.result;
+          let out = '';
+          if (r.output) out += r.output;
+          if (r.error) out += `\nError: ${r.error}`;
+          setOutput(out.trim() || JSON.stringify(r, null, 2));
+        } else if (result.output) {
+          setOutput(result.output);
+        } else if (result.error) {
+          setOutput(`Error: ${result.error}`);
+        } else {
+          setOutput(JSON.stringify(result, null, 2));
+        }
+      } catch (err: any) {
+        console.error('[CodeZ Client] Exception:', err);
+        setOutput('Failed to contact CodeZ service. ' + (err?.message || ''));
+      }
     })();
   };
 
@@ -150,10 +169,10 @@ const CodeExecutionScreen = () => {
               <Trash2 color="#6b7280" size={18} />
             </button>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[80px]">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[80px] overflow-auto">
             <div className="p-4">
               {output ? (
-                <pre className="font-mono text-gray-800 dark:text-gray-100 whitespace-pre-wrap">{output}</pre>
+                <pre className="font-mono text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words w-full max-w-full">{output}</pre>
               ) : (
                 <div className="flex items-center py-8">
                   <Clock color="#9ca3af" size={20} className="mr-2" />

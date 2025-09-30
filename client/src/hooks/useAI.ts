@@ -1,13 +1,8 @@
 import { useState, useCallback } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { offlineAI } from '@/lib/offlineAI';
 import { useApp } from '@/contexts/AppContext';
-
-interface AIResponse {
-  content: string;
-  metadata?: any;
-}
 
 interface TransactionValidation {
   isValid: boolean;
